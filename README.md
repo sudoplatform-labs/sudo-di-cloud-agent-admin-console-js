@@ -1,6 +1,6 @@
 # Sudo Decentralized Identity Cloud Agent Admin Console
 
-The Sudo Decentralized Cloud Agent implements a Sample Web UI to control the process of
+The Sudo Decentralized Cloud Agent Admin Console implements a Sample Web UI to control the process of
 creating, issuing and holding Verifiable Credentials. This Web UI utilises the
 Sudo Decentralized Identity Cloud Agent SDK to create a local, standalone,
 Decentralized Identity development environment.
@@ -9,19 +9,19 @@ _NOTE:_ Currently only MacOS is supported as a development environment and Chrom
 
 ## <a name="setup_instructions"></a>Setup / Running standalone environment
 
-Before begining these instructions you must have [yarn](https://yarnpkg.com) and [docker desktop](https://hub.docker.com/editions/community/docker-ce-desktop-mac) installed on your machine. You will also need a web server package (i.e. `yarn global add serve`).
+Before begining these instructions you must have [yarn](https://yarnpkg.com) and [docker desktop](https://hub.docker.com/editions/community/docker-ce-desktop-mac) installed on your machine.
 
-1. Obtain the project package and unpack it into a work directory.
-2. Change to the `package/` directory.
-3. Run `yarn install --prod`.
+1. Clone this github repository.
+2. Change to the top level project directory
+3. Run `yarn bootstrap`.
    This will initialise the `node_modules` directory with project dependencies.
-4. Edit `build/acapy.json` and add element "endorserSeed": “<32 byte seed>”,
+4. Edit `public/acapy.json` and add element "endorserSeed": “<32 byte seed>”,
 5. Start the local development environment using the installed
-   @sudoplatform-labs/sudo-di-cloud-agent command `yarn di-env start -c $PWD/build/acapy.json`.
+   `@sudoplatform-labs/sudo-di-cloud-agent` command `yarn di-env start -c $PWD/public/acapy.json`.
    This will download and start local docker instances of both a VON Indy Ledger and the
    Sudo Cloud Agency Service. (see di-env for other command options).
-6. Run `serve -s build -l 4000` to begin serving the Web UI.
-7. Browse to the web page url at `localhost:4000`
+6. Run `yarn start` to begin serving the Web UI.
+7. Browse to the web page url at `localhost:3000`
 8. Stop the local development environment when finished using `yarn di-env down`.
    NOTE: This will destroy all credentials, schemas and DIDs created.
 
