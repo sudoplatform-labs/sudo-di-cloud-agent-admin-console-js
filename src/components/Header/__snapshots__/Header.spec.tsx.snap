@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header should render correctly 1`] = `
+<styled.div
+  className="header"
+>
+  <div />
+  <styled.div>
+    <a
+      href="https://docs.sudoplatform.com/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      Developer Docs
+    </a>
+  </styled.div>
+</styled.div>
+`;

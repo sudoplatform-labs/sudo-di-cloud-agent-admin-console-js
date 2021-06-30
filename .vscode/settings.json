@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.enable": true,
+  "sort-imports.on-save": true,
+  "python.formatting.provider": "black"
+}

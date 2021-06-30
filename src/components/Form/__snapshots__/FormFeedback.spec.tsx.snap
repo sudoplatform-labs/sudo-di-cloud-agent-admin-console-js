@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FormFeedback should render correctly when showText is false: showText false 1`] = `
+<styled.div
+  showText={false}
+>
+  Kiwis are a reference to a fruit, a bird, and a friendly people
+</styled.div>
+`;
+
+exports[`FormFeedback should render correctly when showText is true: showText true 1`] = `
+<styled.div
+  showText={true}
+>
+  Kiwis are a reference to a fruit, a bird, and a friendly people
+</styled.div>
+`;

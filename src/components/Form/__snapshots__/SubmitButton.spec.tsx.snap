@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SubmitButton should render correctly when isBusy is false 1`] = `
+<Styled(Button)
+  htmlType="submit"
+  loading={false}
+  shape="round"
+  size="large"
+  type="primary"
+>
+  Kiwi
+</Styled(Button)>
+`;
+
+exports[`SubmitButton should render correctly when isBusy is true 1`] = `
+<Styled(Button)
+  htmlType="submit"
+  loading={true}
+  shape="round"
+  size="large"
+  type="primary"
+>
+  Kiwi
+</Styled(Button)>
+`;

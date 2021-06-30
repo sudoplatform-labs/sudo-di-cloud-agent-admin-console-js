@@ -1,0 +1,1 @@
+export { CredentialRequestsCard } from './CredentialRequestsCard';

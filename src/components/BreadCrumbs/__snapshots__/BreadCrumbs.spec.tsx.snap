@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/BreadCrumbs BreadCrumbs should render correctly 1`] = `
+<Styled(Breadcrumb)
+  separator=">"
+>
+  <BreadcrumbItem
+    key="/a/b"
+  >
+    <Link
+      to="/a/b"
+    >
+      AN
+    </Link>
+  </BreadcrumbItem>
+  <BreadcrumbItem
+    key="/a/b/c"
+  >
+    <Link
+      to="/a/b/c"
+    >
+      ABC
+    </Link>
+  </BreadcrumbItem>
+</Styled(Breadcrumb)>
+`;

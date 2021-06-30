@@ -1,0 +1,1 @@
+export { CompletedProofPresentationsCard } from './CompletedProofPresentationsCard';

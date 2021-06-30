@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FeatureUnavailable should render correctly 1`] = `
+<styled.div>
+  <styled.h1>
+    Chris in Montana
+  </styled.h1>
+  <CardsRow>
+    <Styled(Col)
+      span={24}
+    >
+      <Styled(Styled(Card))>
+        <Row
+          gutter={24}
+        >
+          <Styled(Col)
+            span="12"
+          >
+            <Styled(styled.h3)>
+              Chris is the name and desertion is the game
+            </Styled(styled.h3)>
+            <Styled(styled.p)>
+              Chris left me and I can't function...
+            </Styled(styled.p)>
+            <Styled(styled.p)>
+              CHRISTOPHER!!!!  WHY!!!!!
+            </Styled(styled.p)>
+            <Styled(Button)
+              href="www.never-leave-again.com"
+              shape="round"
+              target="_blank"
+              type="primary"
+            >
+              Learn More
+            </Styled(Button)>
+          </Styled(Col)>
+          <Styled(Col)
+            span="12"
+          >
+            <Styled(Image)
+              name="settings"
+            />
+          </Styled(Col)>
+        </Row>
+      </Styled(Styled(Card))>
+    </Styled(Col)>
+  </CardsRow>
+</styled.div>
+`;

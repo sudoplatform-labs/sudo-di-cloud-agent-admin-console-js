@@ -1,0 +1,1 @@
+export { CompletedProofRequestsCard } from './CompletedProofRequestsCard';

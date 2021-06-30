@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pages/DecentralizedIdentifiersDashboard Should render 1`] = `
+<styled.div>
+  <styled.h1>
+    Decentralized Identifiers
+  </styled.h1>
+  <DecentralizedIdentifiersCard />
+</styled.div>
+`;

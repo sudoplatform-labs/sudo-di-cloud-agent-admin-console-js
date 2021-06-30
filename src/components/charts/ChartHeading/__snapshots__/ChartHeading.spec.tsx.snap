@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChartHeading should render correctly 1`] = `
+<Fragment>
+  <styled.h3>
+    I feel good
+  </styled.h3>
+  <styled.p>
+    I feel great, I feel wonderful
+  </styled.p>
+</Fragment>
+`;

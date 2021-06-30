@@ -1,0 +1,260 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SchemaDefinitionsCard should expand a schema definition row 1`] = `
+<BodyRow
+  cellComponent="td"
+  childrenColumnName="children"
+  expandedKeys={Set {}}
+  getRowKey={[Function]}
+  index={0}
+  key="TEST_SCHEMA_ID_0"
+  record={
+    Object {
+      "attrNames": Array [
+        "TEST_ATTRIBUTE_0",
+        "TEST_ATTRIBUTE_1",
+      ],
+      "id": "TEST_SCHEMA_ID_0",
+      "name": "TEST_SCHEMA_NAME_0",
+      "seqNo": 5,
+      "ver": "TEST_LEDGER_NODE_VERSION",
+      "version": "0.1",
+    }
+  }
+  recordKey="TEST_SCHEMA_ID_0"
+  rowComponent="tr"
+  rowKey="TEST_SCHEMA_ID_0"
+>
+  <tr
+    className="ant-table-row ant-table-row-level-0"
+    data-row-key="TEST_SCHEMA_ID_0"
+    onClick={[Function]}
+    style={Object {}}
+  >
+    <Cell
+      className="ant-table-row-expand-icon-cell"
+      component="td"
+      firstFixLeft={false}
+      firstFixRight={false}
+      index={0}
+      key="RC_TABLE_KEY"
+      lastFixLeft={false}
+      lastFixRight={false}
+      prefixCls="ant-table"
+      record={
+        Object {
+          "attrNames": Array [
+            "TEST_ATTRIBUTE_0",
+            "TEST_ATTRIBUTE_1",
+          ],
+          "id": "TEST_SCHEMA_ID_0",
+          "name": "TEST_SCHEMA_NAME_0",
+          "seqNo": 5,
+          "ver": "TEST_LEDGER_NODE_VERSION",
+          "version": "0.1",
+        }
+      }
+      render={[Function]}
+    >
+      <td
+        className="ant-table-cell ant-table-row-expand-icon-cell"
+        colSpan={null}
+        rowSpan={null}
+        style={Object {}}
+      >
+        <ForwardRef(PlusSquareOutlined)
+          onClick={[Function]}
+        >
+          <AntdIcon
+            icon={
+              Object {
+                "icon": Object {
+                  "attrs": Object {
+                    "focusable": "false",
+                    "viewBox": "64 64 896 896",
+                  },
+                  "children": Array [
+                    Object {
+                      "attrs": Object {
+                        "d": "M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z",
+                      },
+                      "tag": "path",
+                    },
+                    Object {
+                      "attrs": Object {
+                        "d": "M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z",
+                      },
+                      "tag": "path",
+                    },
+                  ],
+                  "tag": "svg",
+                },
+                "name": "plus-square",
+                "theme": "outlined",
+              }
+            }
+            onClick={[Function]}
+          >
+            <span
+              aria-label="plus-square"
+              className="anticon anticon-plus-square"
+              onClick={[Function]}
+              role="img"
+              tabIndex={-1}
+            >
+              <IconReact
+                icon={
+                  Object {
+                    "icon": Object {
+                      "attrs": Object {
+                        "focusable": "false",
+                        "viewBox": "64 64 896 896",
+                      },
+                      "children": Array [
+                        Object {
+                          "attrs": Object {
+                            "d": "M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z",
+                          },
+                          "tag": "path",
+                        },
+                        Object {
+                          "attrs": Object {
+                            "d": "M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z",
+                          },
+                          "tag": "path",
+                        },
+                      ],
+                      "tag": "svg",
+                    },
+                    "name": "plus-square",
+                    "theme": "outlined",
+                  }
+                }
+              >
+                <svg
+                  aria-hidden="true"
+                  data-icon="plus-square"
+                  fill="currentColor"
+                  focusable="false"
+                  height="1em"
+                  key="svg-plus-square"
+                  viewBox="64 64 896 896"
+                  width="1em"
+                >
+                  <path
+                    d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"
+                    key="svg-plus-square-svg-0"
+                  />
+                  <path
+                    d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"
+                    key="svg-plus-square-svg-1"
+                  />
+                </svg>
+              </IconReact>
+            </span>
+          </AntdIcon>
+        </ForwardRef(PlusSquareOutlined)>
+      </td>
+    </Cell>
+    <Cell
+      component="td"
+      dataIndex="name"
+      firstFixLeft={false}
+      firstFixRight={false}
+      index={0}
+      key="name"
+      lastFixLeft={false}
+      lastFixRight={false}
+      prefixCls="ant-table"
+      record={
+        Object {
+          "attrNames": Array [
+            "TEST_ATTRIBUTE_0",
+            "TEST_ATTRIBUTE_1",
+          ],
+          "id": "TEST_SCHEMA_ID_0",
+          "name": "TEST_SCHEMA_NAME_0",
+          "seqNo": 5,
+          "ver": "TEST_LEDGER_NODE_VERSION",
+          "version": "0.1",
+        }
+      }
+    >
+      <td
+        className="ant-table-cell"
+        colSpan={null}
+        rowSpan={null}
+        style={Object {}}
+      >
+        TEST_SCHEMA_NAME_0
+      </td>
+    </Cell>
+    <Cell
+      component="td"
+      dataIndex="version"
+      firstFixLeft={false}
+      firstFixRight={false}
+      index={0}
+      key="version"
+      lastFixLeft={false}
+      lastFixRight={false}
+      prefixCls="ant-table"
+      record={
+        Object {
+          "attrNames": Array [
+            "TEST_ATTRIBUTE_0",
+            "TEST_ATTRIBUTE_1",
+          ],
+          "id": "TEST_SCHEMA_ID_0",
+          "name": "TEST_SCHEMA_NAME_0",
+          "seqNo": 5,
+          "ver": "TEST_LEDGER_NODE_VERSION",
+          "version": "0.1",
+        }
+      }
+    >
+      <td
+        className="ant-table-cell"
+        colSpan={null}
+        rowSpan={null}
+        style={Object {}}
+      >
+        0.1
+      </td>
+    </Cell>
+    <Cell
+      component="td"
+      dataIndex="seqNo"
+      firstFixLeft={false}
+      firstFixRight={false}
+      index={0}
+      key="seqNo"
+      lastFixLeft={false}
+      lastFixRight={false}
+      prefixCls="ant-table"
+      record={
+        Object {
+          "attrNames": Array [
+            "TEST_ATTRIBUTE_0",
+            "TEST_ATTRIBUTE_1",
+          ],
+          "id": "TEST_SCHEMA_ID_0",
+          "name": "TEST_SCHEMA_NAME_0",
+          "seqNo": 5,
+          "ver": "TEST_LEDGER_NODE_VERSION",
+          "version": "0.1",
+        }
+      }
+    >
+      <td
+        className="ant-table-cell"
+        colSpan={null}
+        rowSpan={null}
+        style={Object {}}
+      >
+        5
+      </td>
+    </Cell>
+  </tr>
+</BodyRow>
+`;

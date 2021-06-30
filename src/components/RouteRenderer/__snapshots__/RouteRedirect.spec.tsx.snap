@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/RouteRenderer/RouteRedirect RouteRedirect should render a redirect 1`] = `
+<Redirect
+  to="/path"
+/>
+`;

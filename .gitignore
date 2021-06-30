@@ -1,0 +1,32 @@
+# Developer local testing config
+/public/environment.json
+/public/acapy.json
+/devel
+
+# coverage reports don't get checked in
+/coverage*
+/instrumented
+/.nyc_output
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# production
+/build
+/dist
+/package
+
+# misc
+.DS_Store
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

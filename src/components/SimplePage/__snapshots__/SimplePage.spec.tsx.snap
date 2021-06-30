@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimplePage should render correctly 1`] = `
+<styled.div>
+  <styled.div>
+    I$apos;m a simple page
+  </styled.div>
+</styled.div>
+`;

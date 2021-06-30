@@ -1,0 +1,1 @@
+export { ActiveProofPresentationsCard } from './ActiveProofPresentationsCard';

@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BreadCrumbs should render correctly 1`] = `
+<styled.div>
+  <Styled(Image)
+    name="sdca_light"
+  />
+</styled.div>
+`;

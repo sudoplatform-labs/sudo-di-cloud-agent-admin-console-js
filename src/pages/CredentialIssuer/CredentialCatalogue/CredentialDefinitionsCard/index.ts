@@ -1,0 +1,1 @@
+export { CredentialDefinitionsCard } from './CredentialDefinitionsCard';

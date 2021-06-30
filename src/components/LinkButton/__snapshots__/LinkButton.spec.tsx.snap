@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LinkButton should render correctly 1`] = `
+.c0 {
+  display: inline;
+  line-height: inherit;
+  border: 0;
+  outline: 0;
+  color: currentColor;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.c0:hover {
+  -webkit-text-decoration: underline;
+  text-decoration: underline;
+}
+
+<button
+  className="c0"
+/>
+`;

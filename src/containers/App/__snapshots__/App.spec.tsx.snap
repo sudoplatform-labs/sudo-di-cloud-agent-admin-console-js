@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`containers/App should render 1`] = `
+<MockAppContextProvider
+  value={
+    Object {
+      "cloudAgentAPIs": undefined,
+      "environment": "ENVIRONMENT",
+      "featureFlags": Array [
+        0,
+      ],
+    }
+  }
+>
+  <Memo(l) />
+  <BrowserRouter>
+    <styled.div>
+      <Suspense
+        fallback={<ForwardRef(LoadingOutlined) />}
+      >
+        <MockRouteRenderer
+          routeFactory={[Function]}
+        />
+      </Suspense>
+    </styled.div>
+  </BrowserRouter>
+</MockAppContextProvider>
+`;

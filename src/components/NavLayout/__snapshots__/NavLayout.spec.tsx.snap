@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NavLayout should render 1`] = `
+<Styled(Layout)>
+  <Styled(Sider)
+    width="252px"
+  >
+    <Sidebar
+      routes={Array []}
+    />
+  </Styled(Sider)>
+  <Layout>
+    <Styled(Header)>
+      <AppHeader />
+    </Styled(Header)>
+    <Styled(Content)
+      id="STYLED_LAYOUT_CONTENT"
+    >
+      <BreadCrumbs
+        routes={
+          Array [
+            Object {
+              "path": "/console",
+            },
+          ]
+        }
+      />
+      <styled.div
+        id="TEST"
+      />
+    </Styled(Content)>
+  </Layout>
+</Styled(Layout)>
+`;

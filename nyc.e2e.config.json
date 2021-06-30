@@ -1,0 +1,17 @@
+{
+  "extends": "nyc-config-tsx",
+  "check-coverage": true,
+  "exclude-after-remap": false,
+  "produce-source-map": true,
+  "source-map": true,
+  "lines": 80,
+  "statements": 80,
+  "branches": 55,
+  "functions": 80,
+  "extension": [".ts", ".tsx"],
+  "include": ["**"],
+  "exclude": ["**/*.spec.{ts,tsx}", "src/test/**/*.{ts,tsx}", "setupTests.ts"],
+  "compact": false,
+  "reporter": ["html", "text"],
+  "report-dir": "coverage-e2e"
+}

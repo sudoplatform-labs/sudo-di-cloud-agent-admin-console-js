@@ -1,0 +1,1 @@
+export { CredentialCatalogue } from './CredentialCatalogue';

@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Sidebar should render 1`] = `
+<styled.div>
+  <Styled(SudoPlatformLogo)
+    name="sdca_light"
+    width={100}
+  />
+  <Styled(Menu)
+    mode="inline"
+    onOpenChange={[Function]}
+    openKeys={
+      Array [
+        "/dashboard",
+      ]
+    }
+    selectedKeys={
+      Array [
+        "/dashboard",
+      ]
+    }
+  >
+    <MenuItem
+      key="/aaa"
+    >
+      <Link
+        to="/aaa"
+      >
+        AAA
+      </Link>
+    </MenuItem>
+    <MenuItem
+      key="/bbb"
+    >
+      <Link
+        to="/bbb"
+      >
+        BBB
+      </Link>
+    </MenuItem>
+    <MenuItem
+      key="/ccc"
+    >
+      <Link
+        to="/ccc"
+      >
+        CCC
+      </Link>
+    </MenuItem>
+    <SubMenu
+      key="/ddd"
+      title={
+        <ForwardRef
+          to="/ddd"
+        >
+          <ForwardRef(Styled(Image))
+            name="home"
+          />
+          CCC
+        </ForwardRef>
+      }
+    >
+      <MenuItem
+        key="/ddd/ddd-1"
+      >
+        <Link
+          to="/ddd/ddd-1"
+        >
+          DDD-1
+        </Link>
+      </MenuItem>
+      <MenuItem
+        key="/ddd/ddd-2"
+      >
+        <Link
+          to="/ddd/ddd-2"
+        >
+          DDD-1
+        </Link>
+      </MenuItem>
+    </SubMenu>
+  </Styled(Menu)>
+</styled.div>
+`;

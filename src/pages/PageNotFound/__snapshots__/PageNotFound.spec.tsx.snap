@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pages/EditProfile/EditProfile should render 1`] = `
+<SimplePage>
+  <h1>
+    Page not found
+  </h1>
+</SimplePage>
+`;
