@@ -1,7 +1,7 @@
 {
   "name": "@sudoplatform-labs/sudo-di-cloud-agent-admin-console",
   "description": "Sudo Decentalized Identity Cloud Agent Admin Console Application",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": "Anonyome Platform Team",
   "license": "Apache-2.0",
   "files": [
