@@ -93,10 +93,10 @@ export async function modalTAAAcceptance(
         });
         await onAccept();
       },
-      okButtonProps: { id: 'CreateSchemaDefinitionForm__taa-accept-btn' },
+      okButtonProps: { id: 'ModalTAAAcceptance__accept-btn' },
       onCancel: onCancel,
       cancelButtonProps: {
-        id: 'CreateSchemaDefinitionForm__taa-cancel-btn',
+        id: 'ModalTAAAcceptance__cancel-btn',
       },
     });
   } else {

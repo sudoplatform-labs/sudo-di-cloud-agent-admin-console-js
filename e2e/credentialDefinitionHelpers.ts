@@ -1,5 +1,10 @@
 import { By, until } from 'selenium-webdriver';
-import { e2eCheckMessageDisplays, e2eNavigateToCard } from './commonHelpers';
+import {
+  e2eAcceptTAAForm,
+  e2eCheckMessageDisplays,
+  e2eNavigateToCard,
+  e2eWaitElementVisible,
+} from './commonHelpers';
 import { driver } from './setup-tests';
 
 export const cdWaitDefault = 40000;
@@ -31,34 +36,39 @@ export async function e2eCreateCredentialDefinition(
 ): Promise<void> {
   await e2eNavigateToCredentialDefinitionsCard();
 
-  await driver
-    .findElement(By.css('#CredentialDefinitionsCard__create-btn > span'))
-    .click();
+  await (
+    await e2eWaitElementVisible(
+      By.css('#CredentialDefinitionsCard__create-btn > span'),
+      cdWaitDefault,
+    )
+  ).click();
 
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(By.id('CreateCredentialDefinitionForm')),
-        cdWaitDefault,
-      ),
-    ),
+  await e2eWaitElementVisible(
+    By.id('CreateCredentialDefinitionForm'),
     cdWaitDefault,
   );
 
-  await driver.findElement(By.id('tag')).click();
-  await driver.findElement(By.id('tag')).sendKeys(name);
-  await driver.findElement(By.id('schemaId')).click();
+  await (await driver.findElement(By.id('tag'))).click();
+  await (await driver.findElement(By.id('tag'))).sendKeys(name);
+  await (await driver.findElement(By.id('schemaId'))).click();
   // Use the SchemaId from our created schema
-  await driver.findElement(By.id('schemaId')).sendKeys(schemaId);
-  await driver
-    .findElement(By.css('#CreateCredentialDefinitionForm__submit-btn > span'))
-    .click();
+  await (await driver.findElement(By.id('schemaId'))).sendKeys(schemaId);
+
+  await (
+    await e2eWaitElementVisible(
+      By.css('#CreateCredentialDefinitionForm__submit-btn > span'),
+      cdWaitDefault,
+    )
+  ).click();
+
+  await e2eAcceptTAAForm(cdWaitDefault);
 
   await e2eCheckMessageDisplays(
     'Credential Definition Created!',
     cdWaitDefault,
   );
 
+  // Verify the credential has been put into the table
   await driver.wait(
     until.elementLocated(By.xpath(`//td[contains(.,'${name}')]`)),
     cdWaitDefault,

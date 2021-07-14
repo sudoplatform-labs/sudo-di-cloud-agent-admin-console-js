@@ -1,5 +1,11 @@
 import { By, until } from 'selenium-webdriver';
-import { e2eHoverOverCardInfoIcon } from './commonHelpers';
+import {
+  e2eAcceptTAAForm,
+  e2eCancelTAAForm,
+  e2eCheckMessageDisplays,
+  e2eHoverOverCardInfoIcon,
+  e2eWaitElementVisible,
+} from './commonHelpers';
 import {
   createPrivateDID,
   didWaitDefault,
@@ -20,22 +26,26 @@ describe('Decentralized Identifiers', function () {
   it('DI-0010 Initiate private did creation then cancel dialog', async function () {
     await e2eNavigateToDIDCard();
     // Activate the create DID dialog button
-    await driver
-      .findElement(By.css('#DecentralizedIdentifiersCard__create-btn > span'))
-      .click();
+    await (
+      await e2eWaitElementVisible(
+        By.css('#DecentralizedIdentifiersCard__create-btn > span'),
+        didWaitDefault,
+      )
+    ).click();
+
     // Make sure the dialog appears
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.findElement(By.css('.ant-modal-confirm-title')),
-      ),
+    await e2eWaitElementVisible(
+      By.css('.ant-modal-confirm-title'),
       didWaitDefault,
     );
     // Cancel create dialog
-    await driver
-      .findElement(
+    await (
+      await e2eWaitElementVisible(
         By.css('#DecentralizedIdentifiersCard__create-cancel-btn > span'),
+        didWaitDefault,
       )
-      .click();
+    ).click();
+
     // Make sure the dialog dissapears
     await driver.wait(
       until.stalenessOf(
@@ -53,21 +63,30 @@ describe('Decentralized Identifiers', function () {
   it('DI-0103 Write private DID to Ledger', async function () {
     // We make sure there is at least one writeable DID since we don't know what order tests will be run in
     await createPrivateDID();
-    // Use the side nav to get to the DID tab
-    await driver
-      .wait(
-        until.elementLocated(By.linkText('Decentralized Identifiers')),
-        didWaitDefault,
-      )
-      .click();
     // Locate an unwritten DID row in the table and activate write to ledger dialog
-    await driver
-      .wait(
-        until.elementLocated(By.xpath("//span[contains(.,'Write to Ledger')]")),
+    await (
+      await e2eWaitElementVisible(
+        By.xpath("//span[contains(.,'Write to Ledger')]"),
         didWaitDefault,
       )
-      .click();
-    // NOTE: Need a way to verify that the written row changes button to non-selectable
-    //       and text to indicate written
+    ).click();
+
+    await e2eCancelTAAForm(didWaitDefault);
+
+    // Locate an unwritten DID row in the table and activate write to ledger dialog
+    await (
+      await e2eWaitElementVisible(
+        By.xpath("//span[contains(.,'Write to Ledger')]"),
+        didWaitDefault,
+      )
+    ).click();
+
+    await e2eAcceptTAAForm(didWaitDefault);
+
+    // Check we get a success message
+    await e2eCheckMessageDisplays(
+      'Decentralized Identifier written to public ledger',
+      didWaitDefault,
+    );
   });
 });

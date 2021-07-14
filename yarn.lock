@@ -1614,10 +1614,10 @@
     "@nodelib/fs.scandir" "2.1.4"
     fastq "^1.6.0"
 
-"@sudoplatform-labs/sudo-di-cloud-agent@^0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@sudoplatform-labs/sudo-di-cloud-agent/-/sudo-di-cloud-agent-0.2.5.tgz#61c8309b03f406c39af00f9b17effef6355f8085"
-  integrity sha512-PVZcelTGEBcvhgARZjUWysPqGYved/qA/chx2zytCSHI3RVGG0Eg+t0fl1JbHB1qB/Hwy8Fx0mP5W5roW4SLYg==
+"@sudoplatform-labs/sudo-di-cloud-agent@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform-labs/sudo-di-cloud-agent/-/sudo-di-cloud-agent-0.3.0.tgz#99df443b82afa501113d37d66fd5ecd1416de210"
+  integrity sha512-mmuDE3dlHHfXTI7n6GkvLgeDfFpylC1jipkymC95fjL+YqIq8O0dR8eyVHagRg8UrAE7D3aKVZg0c9OgMTRBtw==
   dependencies:
     portable-fetch "^3.0.0"
 

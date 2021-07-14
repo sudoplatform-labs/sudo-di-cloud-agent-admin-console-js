@@ -3,6 +3,7 @@ import {
   e2eExecuteTableRowRemoveAction,
   e2eHoverOverCardInfoIcon,
   e2eInitiateThenCancelCardForm,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import {
   e2eNavigateToConnectionsCard,
@@ -32,26 +33,21 @@ describe('Connections', function () {
 
   it('DC-0011 Initiate invitation acceptance then cancel dialog', async function () {
     await e2eNavigateToConnectionsCard();
-    await driver
-      .wait(
-        until.elementLocated(By.css('#ConnectionsCard__accept-btn > span')),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#ConnectionsCard__accept-btn > span'),
         dcWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('AcceptInvitationForm')),
-          dcWaitDefault,
-        ),
-      ),
-      dcWaitDefault,
-    );
+    await e2eWaitElementVisible(By.id('AcceptInvitationForm'), dcWaitDefault);
 
-    await driver
-      .findElement(By.css('#AcceptInvitationForm__cancel-btn > span'))
-      .click();
+    await (
+      await e2eWaitElementVisible(
+        By.css('#AcceptInvitationForm__cancel-btn > span'),
+        dcWaitDefault,
+      )
+    ).click();
 
     await driver.wait(
       until.elementIsNotVisible(
@@ -90,22 +86,14 @@ describe('Connections', function () {
 
   it('DC-0201 Attempt invalid create invitation without label', async function () {
     await e2eNavigateToConnectionsCard();
-    await driver
-      .wait(
-        until.elementLocated(By.css('#ConnectionsCard__create-btn > span')),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#ConnectionsCard__create-btn > span'),
         dcWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('CreateInvitationForm')),
-          dcWaitDefault,
-        ),
-      ),
-      dcWaitDefault,
-    );
+    await e2eWaitElementVisible(By.id('CreateInvitationForm'), dcWaitDefault);
 
     // Make sure error text field is not initially displayed
     {
@@ -114,52 +102,42 @@ describe('Connections', function () {
       );
       expect(elements.length).toBeFalsy();
     }
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#CreateInvitationForm__submit-btn > span'),
-        ),
+
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateInvitationForm__submit-btn > span'),
         dcWaitDefault,
       )
-      .click();
+    ).click();
+
     // Check that error text field is displayed
-    const errorText = await driver
-      .wait(
-        until.elementIsVisible(
-          await driver.wait(
-            until.elementLocated(By.css('.ant-form-item-explain > div')),
-            dcWaitDefault,
-          ),
-        ),
+    const errorText = await (
+      await e2eWaitElementVisible(
+        By.css('.ant-form-item-explain > div'),
         dcWaitDefault,
       )
-      .getText();
+    ).getText();
 
     expect(errorText).toContain('Please provide a label');
 
-    await driver
-      .findElement(By.css('#CreateInvitationForm__cancel-btn > span'))
-      .click();
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateInvitationForm__cancel-btn > span'),
+        dcWaitDefault,
+      )
+    ).click();
   });
 
   it('DC-0202 Attempt invalid accept invitation without label', async function () {
     await e2eNavigateToConnectionsCard();
-    await driver
-      .wait(
-        until.elementLocated(By.css('#ConnectionsCard__accept-btn > span')),
+
+    await (
+      await e2eWaitElementVisible(
+        By.css('#ConnectionsCard__accept-btn > span'),
         dcWaitDefault,
       )
-      .click();
-
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('AcceptInvitationForm')),
-          dcWaitDefault,
-        ),
-      ),
-      dcWaitDefault,
-    );
+    ).click();
+    await e2eWaitElementVisible(By.id('AcceptInvitationForm'), dcWaitDefault);
 
     // Make sure error text field is not initially displayed
     {
@@ -168,31 +146,28 @@ describe('Connections', function () {
       );
       expect(elements.length).toBeFalsy();
     }
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#AcceptInvitationForm__submit-btn > span'),
-        ),
-        dcWaitDefault,
-      )
-      .click();
-    // Check that error text field is displayed
-    const errorText = await driver
-      .wait(
-        until.elementIsVisible(
-          await driver.wait(
-            until.elementLocated(By.css('.ant-form-item-explain > div')),
-            dcWaitDefault,
-          ),
-        ),
-        dcWaitDefault,
-      )
-      .getText();
 
+    await (
+      await e2eWaitElementVisible(
+        By.css('#AcceptInvitationForm__submit-btn > span'),
+        dcWaitDefault,
+      )
+    ).click();
+
+    // Check that error text field is displayed
+    const errorText = await (
+      await e2eWaitElementVisible(
+        By.css('.ant-form-item-explain > div'),
+        dcWaitDefault,
+      )
+    ).getText();
     expect(errorText).toContain('Please provide a label');
 
-    await driver
-      .findElement(By.css('#AcceptInvitationForm__cancel-btn > span'))
-      .click();
+    await (
+      await e2eWaitElementVisible(
+        By.css('#AcceptInvitationForm__cancel-btn > span'),
+        dcWaitDefault,
+      )
+    ).click();
   });
 });

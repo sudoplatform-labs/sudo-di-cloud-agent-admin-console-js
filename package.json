@@ -1,7 +1,7 @@
 {
   "name": "@sudoplatform-labs/sudo-di-cloud-agent-admin-console",
   "description": "Sudo Decentalized Identity Cloud Agent Admin Console Application",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "author": "Anonyome Platform Team",
   "license": "Apache-2.0",
   "files": [
@@ -19,12 +19,12 @@
     "build:ts-check": "yarn tsc --noEmit",
     "test:update-acapy-address": "./utils/update-acapy-address.sh -c ./build/acapy.json",
     "test:execute-e2e": "jest --runInBand -c jest.e2e.config.js",
-    "test:start-browser-server-debug": "./e2e/browser-server.sh start -i selenium/standalone-chrome-debug:3.141.59-20210128 -p 4445",
-    "test:start-browser-server": "./e2e/browser-server.sh start -i selenium/standalone-chrome:3.141.59-20210128 -p 4445",
+    "test:start-browser-server-debug": "./e2e/browser-server.sh start -i selenium/standalone-chrome-debug:3.141.59 -p 4445",
+    "test:start-browser-server": "./e2e/browser-server.sh start -i selenium/standalone-chrome:3.141.59 -p 4445",
     "test:stop-browser-server": "./e2e/browser-server.sh stop",
     "test:start-e2e-env": "yarn di-env start -s 7837E638F94B43B5AD22C97354B997F9 && yarn test:update-acapy-address && yarn test:start-browser-server-debug",
     "test:stop-e2e-env": "yarn test:stop-browser-server; yarn di-env down",
-    "test:run-e2e": " yarn test:start-e2e-env && yarn test:execute-e2e; yarn test:stop-e2e-env",
+    "test:run-e2e": "rm -rf .e2e_test_success && yarn test:start-e2e-env && yarn test:execute-e2e && touch .e2e_test_success; yarn test:stop-e2e-env",
     "test:unit": "yarn react-scripts test",
     "test:e2e": "yarn test:run-e2e",
     "test:all": "CI=true yarn test:unit && yarn test:e2e ",
@@ -37,11 +37,12 @@
     "coverage:unit-tests": "cd ./instrumented && CI=true yarn test:unit --coverage",
     "coverage:e2e-tests": "cd ./instrumented && yarn test:run-e2e",
     "coverage:all-tests": "yarn coverage:unit-tests; yarn coverage:copy-unit-test-coverage; yarn coverage:e2e-tests",
-    "coverage:report": "rm -rf ./.nyc_output && cp -R instrumented/.nyc_output ./ && nyc report --nycrc-path='./nyc.e2e.config.json'"
+    "coverage:report": "rm -rf ./.nyc_output && cp -R instrumented/.nyc_output ./ && nyc report --nycrc-path='./nyc.e2e.config.json'",
+    "coverage": "rm -rf ./instrumented; yarn coverage:build && yarn coverage:all-tests; yarn coverage:report"
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.5",
-    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.2.5",
+    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.3.0",
     "antd": "^4.5.4",
     "antd-mask-input": "^0.1.13",
     "color": "^3.1.2",

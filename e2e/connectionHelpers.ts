@@ -1,5 +1,5 @@
 import { By, until } from 'selenium-webdriver';
-import { e2eNavigateToCard } from './commonHelpers';
+import { e2eNavigateToCard, e2eWaitElementVisible } from './commonHelpers';
 import { driver } from './setup-tests';
 
 export const dcWaitDefault = 20000;
@@ -25,41 +25,37 @@ export async function e2eNavigateToConnectionsCard(): Promise<void> {
  * invitation.
  */
 export async function e2eCreateInvitation(alias: string): Promise<string> {
-  e2eNavigateToConnectionsCard();
-  await driver
-    .wait(
-      until.elementLocated(By.css('#ConnectionsCard__create-btn > span')),
+  await e2eNavigateToConnectionsCard();
+  await (
+    await e2eWaitElementVisible(
+      By.css('#ConnectionsCard__create-btn > span'),
       dcWaitDefault,
     )
-    .click();
+  ).click();
 
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(By.id('CreateInvitationForm')),
-        dcWaitDefault,
-      ),
-    ),
+  await e2eWaitElementVisible(By.id('CreateInvitationForm'), dcWaitDefault);
+
+  const aliasElement = await e2eWaitElementVisible(
+    By.id('CreateInvitationForm_alias'),
     dcWaitDefault,
   );
+
   await driver
-    .wait(
-      until.elementLocated(By.css('#CreateInvitationForm #myAlias')),
+    .actions({ bridge: true })
+    .pause(500)
+    .move({ origin: aliasElement })
+    .pause(500)
+    .click()
+    .pause(500)
+    .sendKeys(alias)
+    .perform();
+
+  await (
+    await e2eWaitElementVisible(
+      By.css('#CreateInvitationForm__submit-btn > span'),
       dcWaitDefault,
     )
-    .click();
-  await driver
-    .wait(
-      until.elementLocated(By.css('#CreateInvitationForm #myAlias')),
-      dcWaitDefault,
-    )
-    .sendKeys(alias);
-  await driver
-    .wait(
-      until.elementLocated(By.css('#CreateInvitationForm__submit-btn > span')),
-      dcWaitDefault,
-    )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsNotVisible(
@@ -73,43 +69,30 @@ export async function e2eCreateInvitation(alias: string): Promise<string> {
 
   // Make sure the invitation is created and displayed in the
   // modal dialog
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(
-          By.xpath("//span[contains(.,'Invitation Details')]"),
-        ),
-        dcWaitDefault,
-      ),
-    ),
+  const invitation = await e2eWaitElementVisible(
+    By.xpath("//span[contains(.,'Invitation Details')]"),
     dcWaitDefault,
   );
 
   // Get the invitation text to return.
-  const invitationText = await driver
-    .wait(until.elementLocated(By.xpath('//pre')), dcWaitDefault)
-    .getText();
+  const invitationText = await (
+    await driver.wait(until.elementLocated(By.xpath('//pre')), dcWaitDefault)
+  ).getText();
 
   // Clear the confirm dialog
-  await driver
-    .wait(
-      until.elementLocated(By.xpath("//span[contains(.,'Ok')]")),
+  await (
+    await e2eWaitElementVisible(
+      By.xpath("//span[contains(.,'Ok')]"),
       dcWaitDefault,
     )
-    .click();
+  ).click();
 
   // Make sure the dialog dissapears
-  {
-    await new Promise((r) => setTimeout(r, 3000));
-    const elements = await driver.findElements(
-      By.xpath("//span[contains(.,'Invitation Details')]"),
-    );
-    expect(elements.length).toBeFalsy();
-  }
+  await driver.wait(until.stalenessOf(invitation), dcWaitDefault);
 
   // Check the invitation appears in the list
-  await driver.wait(
-    until.elementLocated(By.xpath(`//td[contains(.,'${alias}')]`)),
+  await e2eWaitElementVisible(
+    By.xpath(`//td[contains(.,'${alias}')]`),
     dcWaitDefault,
   );
 
@@ -128,55 +111,55 @@ export async function e2eAcceptInvitation(
   alias: string,
   invitation: string,
 ): Promise<void> {
-  e2eNavigateToConnectionsCard();
+  await e2eNavigateToConnectionsCard();
 
   // Input the invitation into the acceptance dialog
-  await driver
-    .wait(
-      until.elementIsEnabled(
-        await driver.wait(
-          until.elementLocated(By.css('#ConnectionsCard__accept-btn > span')),
-          dcWaitDefault,
-        ),
-      ),
+  await (
+    await e2eWaitElementVisible(
+      By.css('#ConnectionsCard__accept-btn > span'),
+      dcWaitDefault,
     )
-    .click();
+  ).click();
 
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(By.id('AcceptInvitationForm')),
-        dcWaitDefault,
-      ),
-    ),
+  await e2eWaitElementVisible(By.id('AcceptInvitationForm'), dcWaitDefault);
+
+  const aliasElement = await e2eWaitElementVisible(
+    By.id('AcceptInvitationForm_alias'),
+    dcWaitDefault,
+  );
+
+  await driver.wait(until.elementIsEnabled(aliasElement), dcWaitDefault);
+  await driver
+    .actions({ bridge: true })
+    .pause(500)
+    .move({ origin: aliasElement })
+    .pause(500)
+    .click()
+    .pause(500)
+    .sendKeys(alias)
+    .perform();
+
+  const textElement = await e2eWaitElementVisible(
+    By.id('AcceptInvitationForm_invitation'),
     dcWaitDefault,
   );
   await driver
-    .wait(
-      until.elementLocated(By.css('#AcceptInvitationForm #myAlias')),
-      dcWaitDefault,
-    )
-    .click();
-  await driver
-    .wait(
-      until.elementLocated(By.css('#AcceptInvitationForm #myAlias')),
-      dcWaitDefault,
-    )
-    .sendKeys(alias);
-  await driver
-    .wait(until.elementLocated(By.id('invitation_input')), dcWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('invitation_input')), dcWaitDefault)
-    .sendKeys(invitation);
+    .actions({ bridge: true })
+    .pause(500)
+    .move({ origin: textElement })
+    .pause(500)
+    .click()
+    .pause(500)
+    .sendKeys(invitation)
+    .perform();
 
   // Accept invitation and make sure review dialog displayed
-  await driver
-    .wait(
-      until.elementLocated(By.css('#AcceptInvitationForm__submit-btn > span')),
+  await (
+    await e2eWaitElementVisible(
+      By.css('#AcceptInvitationForm__submit-btn > span'),
       dcWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsNotVisible(
@@ -188,24 +171,22 @@ export async function e2eAcceptInvitation(
     dcWaitDefault,
   );
 
-  await driver.wait(
-    until.elementLocated(By.xpath("//span[contains(.,'Invitation Details')]")),
+  await e2eWaitElementVisible(
+    By.xpath("//span[contains(.,'Invitation Details')]"),
     dcWaitDefault,
   );
 
   // Complete connection set up
-  await driver
-    .wait(
-      until.elementLocated(
-        By.css('.ant-modal-confirm-btns > .ant-btn-primary > span'),
-      ),
+  await (
+    await e2eWaitElementVisible(
+      By.css('.ant-modal-confirm-btns > .ant-btn-primary > span'),
       dcWaitDefault,
     )
-    .click();
+  ).click();
 
   // Check the invitation appears in the list
-  await driver.wait(
-    until.elementLocated(By.xpath(`//td[contains(.,'${alias}')]`)),
+  await e2eWaitElementVisible(
+    By.xpath(`//td[contains(.,'${alias}')]`),
     dcWaitDefault,
   );
 }

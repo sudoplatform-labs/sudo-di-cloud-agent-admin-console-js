@@ -46,7 +46,7 @@ export const CreateInvitationForm: React.FC<Props> = (props) => {
       }
 
       const params: ConnectionInvitationParams = {
-        alias: values.myAlias,
+        alias: values.CreateInvitationForm_alias,
         mode: ConnRecord.AcceptEnum.Auto,
         multi: values.multiUse,
         public: false,
@@ -65,7 +65,7 @@ export const CreateInvitationForm: React.FC<Props> = (props) => {
       onFinish={handleSubmit}
       layout="vertical">
       <Form.Item
-        name="myAlias"
+        name="CreateInvitationForm_alias"
         label="Label for Invitation"
         rules={[
           {

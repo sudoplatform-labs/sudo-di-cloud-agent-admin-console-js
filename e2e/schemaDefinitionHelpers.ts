@@ -1,5 +1,10 @@
 import { By, Key, until } from 'selenium-webdriver';
-import { e2eCheckMessageDisplays, e2eNavigateToCard } from './commonHelpers';
+import {
+  e2eAcceptTAAForm,
+  e2eCheckMessageDisplays,
+  e2eNavigateToCard,
+  e2eWaitElementVisible,
+} from './commonHelpers';
 import { driver } from './setup-tests';
 
 export const sdWaitDefault = 20000;
@@ -28,17 +33,19 @@ export async function e2eGetSchemaId(name: string): Promise<string> {
   await e2eNavigateToSchemaCard();
 
   // Obtain the schema identifier to return
-  await driver
-    .wait(
-      until.elementLocated(By.xpath(`//td[contains(.,'${name}')]/../td[1]`)),
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(`//td[contains(.,'${name}')]/../td[1]`),
       sdWaitDefault,
     )
-    .click();
-  const schemaId = await driver
-    .findElement(
+  ).click();
+
+  const schemaId = await (
+    await e2eWaitElementVisible(
       By.xpath("//h3[contains(.,'Schema Identifier')]/following-sibling::p"),
+      sdWaitDefault,
     )
-    .getText();
+  ).getText();
 
   return schemaId;
 }
@@ -62,44 +69,56 @@ export async function e2eEnterSchemaDefintionDetails(
   attributes: string[],
 ): Promise<void> {
   await e2eNavigateToSchemaCard();
-  await driver
-    .wait(
-      until.elementLocated(By.css('#SchemaDefinitionsCard__create-btn > span')),
+  await (
+    await e2eWaitElementVisible(
+      By.css('#SchemaDefinitionsCard__create-btn > span'),
       sdWaitDefault,
     )
-    .click();
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(By.id('CreateSchemaDefinitionForm')),
-        sdWaitDefault,
-      ),
-    ),
+  ).click();
+
+  await e2eWaitElementVisible(
+    By.id('CreateSchemaDefinitionForm'),
     sdWaitDefault,
   );
-  await driver
-    .wait(until.elementLocated(By.id('schemaName')), sdWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('schemaName')), sdWaitDefault)
-    .sendKeys(name);
-  await driver
-    .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-    .sendKeys(version);
+
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaName')), sdWaitDefault)
+  ).click();
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaName')), sdWaitDefault)
+  ).sendKeys(name);
+  await (
+    await driver.wait(
+      until.elementLocated(By.id('schemaVersion')),
+      sdWaitDefault,
+    )
+  ).click();
+  await (
+    await driver.wait(
+      until.elementLocated(By.id('schemaVersion')),
+      sdWaitDefault,
+    )
+  ).sendKeys(version);
 
   for (let i = 0; i < attributes.length; i++) {
-    await driver
-      .wait(until.elementLocated(By.id('attributes')), sdWaitDefault)
-      .click();
-    await driver
-      .wait(until.elementLocated(By.id('attributes')), sdWaitDefault)
-      .sendKeys(attributes[i]);
-    await driver
-      .wait(until.elementLocated(By.id('attributes')), sdWaitDefault)
-      .sendKeys(Key.ENTER);
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('attributes')),
+        sdWaitDefault,
+      )
+    ).click();
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('attributes')),
+        sdWaitDefault,
+      )
+    ).sendKeys(attributes[i]);
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('attributes')),
+        sdWaitDefault,
+      )
+    ).sendKeys(Key.ENTER);
     // Make sure the entry appears in the table before proceeding
     await driver.wait(
       until.elementLocated(By.xpath(`//td[contains(.,'${attributes[i]}')]`)),
@@ -127,38 +146,32 @@ export async function e2eCreateSchemaDefinition(
 ): Promise<string> {
   await e2eEnterSchemaDefintionDetails(name, version, attributes);
 
-  await driver
-    .wait(
-      until.elementLocated(
-        By.css('#CreateSchemaDefinitionForm__submit-btn > span'),
-      ),
+  await (
+    await e2eWaitElementVisible(
+      By.css('#CreateSchemaDefinitionForm__submit-btn > span'),
       sdWaitDefault,
     )
-    .click();
-  await driver.wait(
-    until.elementIsNotVisible(
-      await driver.wait(
-        until.elementLocated(By.id('CreateSchemaDefinitionForm')),
-        sdWaitDefault,
-      ),
-    ),
-    sdWaitDefault,
-  );
+  ).click();
+
+  await e2eAcceptTAAForm(sdWaitDefault);
 
   await e2eCheckMessageDisplays('Schema Definition Created!', sdWaitDefault);
 
-  // Obtain the schema identifier to return
-  await driver
-    .wait(
-      until.elementLocated(By.xpath(`//td[contains(.,'${name}')]/../td[1]`)),
+  // Obtain the schema identifier to return, which also ensures it was
+  // created and displayed.
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(`//td[contains(.,'${name}')]/../td[1]`),
       sdWaitDefault,
     )
-    .click();
-  const schemaId = await driver
-    .findElement(
+  ).click();
+
+  const schemaId = await (
+    await e2eWaitElementVisible(
       By.xpath("//h3[contains(.,'Schema Identifier')]/following-sibling::p"),
+      sdWaitDefault,
     )
-    .getText();
+  ).getText();
 
   return schemaId;
 }

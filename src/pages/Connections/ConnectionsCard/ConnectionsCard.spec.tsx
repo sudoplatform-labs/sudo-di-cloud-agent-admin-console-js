@@ -212,7 +212,11 @@ describe('ConnectionsCard', () => {
     expect(inviteForm.prop('visible')).toBe(true);
 
     await act(async () => {
-      await changeFormInput(inviteForm, 'myAlias', 'TEST_NEW_ALIAS');
+      await changeFormInput(
+        inviteForm,
+        'CreateInvitationForm_alias',
+        'TEST_NEW_ALIAS',
+      );
     });
 
     await submitForm(inviteForm);

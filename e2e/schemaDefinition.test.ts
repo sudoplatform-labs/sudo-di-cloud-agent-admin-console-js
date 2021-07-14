@@ -2,6 +2,7 @@ import { By, until } from 'selenium-webdriver';
 import {
   e2eHoverOverCardInfoIcon,
   e2eInitiateThenCancelCardForm,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import {
   e2eCreateSchemaDefinition,
@@ -52,22 +53,22 @@ describe('Schema Definition', function () {
       'state',
     ]);
 
-    await driver
-      .wait(until.elementLocated(By.linkText('2')), sdWaitDefault)
-      .click();
+    await (
+      await e2eWaitElementVisible(By.linkText('2'), sdWaitDefault)
+    ).click();
+
     // Check that the overflow page has the expected attribute
-    await driver.wait(
-      until.elementLocated(By.xpath("//td[contains(.,'suburb')]")),
+    await e2eWaitElementVisible(
+      By.xpath("//td[contains(.,'suburb')]"),
       sdWaitDefault,
     );
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
-        ),
+
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
         sdWaitDefault,
       )
-      .click();
+    ).click();
   });
 
   it('SD-0104 Initiate valid basic schema with one attribute then delete attribute', async function () {
@@ -75,48 +76,47 @@ describe('Schema Definition', function () {
       'licenseNumber',
     ]);
 
-    await driver
-      .wait(
-        until.elementLocated(By.xpath("//button[contains(.,'Remove')]")),
+    await (
+      await e2eWaitElementVisible(
+        By.xpath("//button[contains(.,'Remove')]"),
         sdWaitDefault,
       )
-      .click();
+    ).click();
+
     // Need a way to check that the attribute table is now empty
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
         sdWaitDefault,
       )
-      .click();
+    ).click();
   });
 
   it('SD-0201 Attempt invalid create schema without name', async function () {
     await e2eNavigateToSchemaCard();
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#SchemaDefinitionsCard__create-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#SchemaDefinitionsCard__create-btn > span'),
         sdWaitDefault,
       )
-      .click();
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('CreateSchemaDefinitionForm')),
-          sdWaitDefault,
-        ),
-      ),
+    ).click();
+
+    await e2eWaitElementVisible(
+      By.id('CreateSchemaDefinitionForm'),
       sdWaitDefault,
     );
-    await driver
-      .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-      .click();
-    await driver
-      .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-      .sendKeys('0.1');
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('schemaVersion')),
+        sdWaitDefault,
+      )
+    ).click();
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('schemaVersion')),
+        sdWaitDefault,
+      )
+    ).sendKeys('0.1');
     // Make sure error text field is not initially displayed
     {
       const elements = await driver.findElements(
@@ -124,36 +124,35 @@ describe('Schema Definition', function () {
       );
       expect(elements.length).toBeFalsy();
     }
-    await driver
-      .findElement(By.css('#CreateSchemaDefinitionForm__submit-btn > span'))
-      .click();
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateSchemaDefinitionForm__submit-btn > span'),
+        sdWaitDefault,
+      )
+    ).click();
     // Check that error text field is displayed
-    await driver.wait(
-      until.elementLocated(By.css('.ant-form-item-explain > div')),
-      10000,
+    await e2eWaitElementVisible(
+      By.css('.ant-form-item-explain > div'),
+      sdWaitDefault,
     );
-    await driver
-      .findElement(By.css('#CreateSchemaDefinitionForm__cancel-btn > span'))
-      .click();
+
+    await (
+      await driver.findElement(
+        By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
+      )
+    ).click();
   });
 
   it('SD-0202 Input invalid schema version and check validation fails', async function () {
     await e2eNavigateToSchemaCard();
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#SchemaDefinitionsCard__create-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#SchemaDefinitionsCard__create-btn > span'),
         sdWaitDefault,
       )
-      .click();
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('CreateSchemaDefinitionForm')),
-          sdWaitDefault,
-        ),
-      ),
+    ).click();
+    await e2eWaitElementVisible(
+      By.id('CreateSchemaDefinitionForm'),
       sdWaitDefault,
     );
     // Make sure error text field is not initially displayed
@@ -163,19 +162,27 @@ describe('Schema Definition', function () {
       );
       expect(elements.length).toBeFalsy();
     }
-    await driver
-      .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-      .click();
-    await driver
-      .wait(until.elementLocated(By.id('schemaVersion')), sdWaitDefault)
-      .sendKeys('x.1');
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('schemaVersion')),
+        sdWaitDefault,
+      )
+    ).click();
+    await (
+      await driver.wait(
+        until.elementLocated(By.id('schemaVersion')),
+        sdWaitDefault,
+      )
+    ).sendKeys('x.1');
     // Check that error text field is displayed
-    await driver.wait(
-      until.elementLocated(By.css('.ant-form-item-explain > div')),
-      10000,
+    await e2eWaitElementVisible(
+      By.css('.ant-form-item-explain > div'),
+      sdWaitDefault,
     );
-    await driver
-      .findElement(By.css('#CreateSchemaDefinitionForm__cancel-btn > span'))
-      .click();
+    await (
+      await driver.findElement(
+        By.css('#CreateSchemaDefinitionForm__cancel-btn > span'),
+      )
+    ).click();
   });
 });

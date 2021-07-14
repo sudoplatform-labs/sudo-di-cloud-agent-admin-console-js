@@ -1,7 +1,32 @@
-import { By, until } from 'selenium-webdriver';
+import { By, Locator, until, WebElement } from 'selenium-webdriver';
 import { driver } from './setup-tests';
 
 export const commonWaitDefault = 20000;
+
+/**
+ * Utility function to wait for a element to appear and be
+ * visible.  Returns to element if found.
+ *
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ * @return {WebElement} The now visible element.
+ */
+export async function e2eWaitElementVisible(
+  locator: Locator,
+  wait: number = commonWaitDefault,
+): Promise<WebElement> {
+  try {
+    const element = await driver.wait(
+      until.elementIsVisible(
+        await driver.wait(until.elementLocated(locator), wait),
+      ),
+      wait,
+    );
+    return element;
+  } catch (e) {
+    throw `Failed to find visible element ${locator}: ${e}`;
+  }
+}
 
 /**
  * Utility function to test navigation to a specified card
@@ -26,11 +51,7 @@ export async function e2eNavigateToCard(
 ): Promise<void> {
   // Use the side nav to get to the correct panel
   for (let i = 0; i < route.length; i++) {
-    const element = await driver.wait(
-      until.elementLocated(By.linkText(route[i])),
-      wait,
-    );
-
+    const element = await e2eWaitElementVisible(By.linkText(route[i]), wait);
     await driver
       .actions({ bridge: true })
       .pause(200)
@@ -40,14 +61,14 @@ export async function e2eNavigateToCard(
       .perform();
   }
   // Make sure the correct card is found
-  await driver.wait(
-    until.elementLocated(By.css(`#${cardIdPrefix} .ant-card-head-title`)),
+  await e2eWaitElementVisible(
+    By.css(`#${cardIdPrefix} .ant-card-head-title`),
     wait,
   );
   expect(
-    await driver
-      .findElement(By.css(`#${cardIdPrefix} .ant-card-head-title`))
-      .getText(),
+    await (
+      await driver.findElement(By.css(`#${cardIdPrefix} .ant-card-head-title`))
+    ).getText(),
   ).toBe(cardTitle);
 }
 
@@ -68,27 +89,20 @@ export async function e2eHoverOverCardInfoIcon(
 ): Promise<void> {
   {
     // Move mouse over info icon
-    const element = await driver.wait(
-      until.elementLocated(By.css(`#${cardIdPrefix}__popover-icon > svg`)),
+    const element = await e2eWaitElementVisible(
+      By.css(`#${cardIdPrefix}__popover-icon > svg`),
       wait,
     );
     await driver.actions({ bridge: true }).move({ origin: element }).perform();
   }
   // Make sure the pop up displays
-  await driver.wait(
-    until.elementLocated(
-      By.xpath(`//div[@id='${cardIdPrefix}__popover-dialog']/div[2]/p`),
-    ),
+  await e2eWaitElementVisible(
+    By.xpath(`//div[@id='${cardIdPrefix}__popover-dialog']/div[2]/p`),
     wait,
   );
+
   // Move mouse out of info icon
-  {
-    const element = await driver.wait(
-      until.elementLocated(By.css('body')),
-      wait,
-    );
-    await driver.actions({ bridge: true }).move({ origin: element }).perform();
-  }
+  await driver.actions({ bridge: true }).move({}).perform();
   // Make sure the pop up goes away
   await driver.wait(
     until.elementIsNotVisible(
@@ -114,11 +128,11 @@ export async function e2eCheckMessageDisplays(
   wait: number = commonWaitDefault,
 ): Promise<void> {
   // Check that the expected message appears after the action.
-  const element = await driver.wait(
-    until.elementLocated(By.xpath(`//span[contains(.,'${message}')]`)),
+  const element = await e2eWaitElementVisible(
+    By.xpath(`//span[contains(.,'${message}')]`),
     wait,
   );
-  await driver.wait(until.elementIsVisible(element), wait);
+
   // Wait for message to dissapear to avoid artifact issues
   // with subsequent UI actions
   await driver.wait(until.stalenessOf(element), wait);
@@ -142,21 +156,25 @@ export async function e2eInitiateThenCancelCardForm(
   cardFormId: string,
   wait: number = commonWaitDefault,
 ): Promise<void> {
-  await driver
-    .wait(
-      until.elementLocated(By.css(`#${cardFormActivateButton} > span`)),
+  await (
+    await e2eWaitElementVisible(
+      By.css(`#${cardFormActivateButton} > span`),
       wait,
     )
-    .click();
+  ).click();
+  await e2eWaitElementVisible(By.id(cardFormId), wait);
 
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(until.elementLocated(By.id(cardFormId)), wait),
-    ),
+  const cancelBtn = await e2eWaitElementVisible(
+    By.css(`#${cardFormId}__cancel-btn > span`),
     wait,
   );
-
-  await driver.findElement(By.css(`#${cardFormId}__cancel-btn > span`)).click();
+  await driver
+    .actions({ bridge: true })
+    .pause(200)
+    .move({ origin: cancelBtn })
+    .pause(200)
+    .click()
+    .perform();
 
   await driver.wait(
     until.elementIsNotVisible(
@@ -187,20 +205,18 @@ export async function e2eActivateTableRowDropdownAction(
   actionSelection: string,
   wait: number = commonWaitDefault,
 ): Promise<void> {
-  await driver
-    .wait(
-      until.elementLocated(
-        By.xpath(
-          `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${actionButtonLabel}')]`,
-        ),
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${actionButtonLabel}')]`,
       ),
       wait,
     )
-    .click();
+  ).click();
 
   {
-    const element = await driver.wait(
-      until.elementLocated(By.xpath(`//li[contains(.,'${actionSelection}')]`)),
+    const element = await e2eWaitElementVisible(
+      By.xpath(`//li[contains(.,'${actionSelection}')]`),
       wait,
     );
     await driver.wait(until.elementIsEnabled(element), wait);
@@ -252,12 +268,11 @@ export async function e2eExecuteTableRowDropdownAction(
   );
 
   {
-    const element = await driver.wait(
-      until.elementLocated(
-        By.xpath(`//button[contains(.,'${dialogButtonId}')]/span`),
-      ),
+    const element = await e2eWaitElementVisible(
+      By.xpath(`//button[contains(.,'${dialogButtonId}')]/span`),
       wait,
     );
+
     await driver
       .actions({ bridge: true })
       .pause(200)
@@ -305,86 +320,62 @@ export async function e2eExecuteTableRowRemoveAction(
   expectedMessage: string,
   wait: number = commonWaitDefault,
 ): Promise<void> {
-  await driver
-    .wait(
-      until.elementLocated(
-        By.xpath(
-          `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${removeButtonLabel}')]`,
-        ),
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${removeButtonLabel}')]`,
       ),
       wait,
     )
-    .click();
+  ).click();
 
   // Check Remove dialog appears
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(
-          By.xpath(`//span[contains(.,'${confirmDialogTitle}')]`),
-        ),
-        wait,
-      ),
-    ),
+  let element = await e2eWaitElementVisible(
+    By.xpath(`//span[contains(.,'${confirmDialogTitle}')]`),
     wait,
   );
 
-  let button = await driver.wait(
-    until.elementLocated(
+  // Cancel out to make sure that works
+  await (
+    await e2eWaitElementVisible(
       By.xpath(
         `//span[contains(.,'${confirmDialogTitle}')]/ancestor::div[@class='ant-modal-body']//span[contains(.,'${cancelButtonLabel}')]`,
       ),
-    ),
-    wait,
-  );
+      wait,
+    )
+  ).click();
 
-  await button.click();
+  // Wait for message to dissapear to avoid artifact issues
+  // with subsequent UI actions
+  await driver.wait(until.stalenessOf(element), wait);
 
-  // Check Remove dialog disappears
-  {
-    await new Promise((r) => setTimeout(r, 3000));
-    const elements = await driver.findElements(
-      By.xpath(`//span[contains(.,'${confirmDialogTitle}')]`),
-    );
-    expect(elements.length).toBeFalsy();
-  }
-
-  // Now execute the remove
-  await driver
-    .wait(
-      until.elementLocated(
-        By.xpath(
-          `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${removeButtonLabel}')]`,
-        ),
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${rowId}')]/..//button[contains(.,'${removeButtonLabel}')]`,
       ),
       wait,
     )
-    .click();
+  ).click();
 
-  await driver.wait(
-    until.elementIsVisible(
-      await driver.wait(
-        until.elementLocated(
-          By.xpath(`//span[contains(.,'${confirmDialogTitle}')]`),
-        ),
-        wait,
-      ),
-    ),
+  element = await e2eWaitElementVisible(
+    By.xpath(`//span[contains(.,'${confirmDialogTitle}')]`),
     wait,
   );
 
-  button = await driver.wait(
-    until.elementLocated(
+  await (
+    await e2eWaitElementVisible(
       By.xpath(
         `//span[contains(.,'${confirmDialogTitle}')]/ancestor::div[@class='ant-modal-body']//span[contains(.,'${confirmButtonLabel}')]`,
       ),
-    ),
-    wait,
-  );
-
-  await button.click();
+      wait,
+    )
+  ).click();
 
   await e2eCheckMessageDisplays(expectedMessage, wait);
+  // Wait for message to dissapear to avoid artifact issues
+  // with subsequent UI actions
+  await driver.wait(until.stalenessOf(element), wait);
 
   // Make sure it was deleted from the table
   {
@@ -395,4 +386,55 @@ export async function e2eExecuteTableRowRemoveAction(
     );
     expect(elements.length).toBeFalsy();
   }
+}
+
+/**
+ * Utility function to cancel the TAA dialog and check it goes away.
+ * Expects the TAA dialog is being or about to be displayed.
+ *
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ */
+export async function e2eCancelTAAForm(
+  wait: number = commonWaitDefault,
+): Promise<void> {
+  // Check that the TAA is displayed
+  const taa = await e2eWaitElementVisible(
+    By.xpath("//span[contains(.,'Transaction Authors Agreement (TAA)')]"),
+    wait,
+  );
+
+  // Cancel out
+  await (
+    await e2eWaitElementVisible(
+      By.css('#ModalTAAAcceptance__cancel-btn > span'),
+      wait,
+    )
+  ).click();
+  await driver.wait(until.stalenessOf(taa), wait);
+}
+
+/**
+ * Utility function to Accept the TAA dialog.
+ * Expects the TAA dialog is being or about to be displayed.
+ *
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ */
+export async function e2eAcceptTAAForm(
+  wait: number = commonWaitDefault,
+): Promise<void> {
+  // Check that the TAA is displayed
+  await e2eWaitElementVisible(
+    By.xpath("//span[contains(.,'Transaction Authors Agreement (TAA)')]"),
+    wait,
+  );
+
+  // Accept the TAA
+  await (
+    await e2eWaitElementVisible(
+      By.css('#ModalTAAAcceptance__accept-btn > span'),
+      wait,
+    )
+  ).click();
 }

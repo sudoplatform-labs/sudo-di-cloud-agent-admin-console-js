@@ -1,9 +1,10 @@
-import { By, until } from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 import {
   e2eExecuteTableRowDropdownAction,
   e2eExecuteTableRowRemoveAction,
   e2eHoverOverCardInfoIcon,
   e2eInitiateThenCancelCardForm,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import { e2eAcceptInvitation, e2eCreateInvitation } from './connectionHelpers';
 import { e2eCreateCredentialDefinition } from './credentialDefinitionHelpers';
@@ -212,47 +213,35 @@ describe('Proof Presentation', function () {
 
   it('PP-0201 Attempt invalid proof request without attributes', async function () {
     await e2eNavigateToVerifierActiveProofRequestsCard();
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#ActiveProofRequestsCard__new-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#ActiveProofRequestsCard__new-btn > span'),
         ppWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('RequestProofForm')),
-          ppWaitDefault,
-        ),
-      ),
-      ppWaitDefault,
-    );
+    await e2eWaitElementVisible(By.id('RequestProofForm'), ppWaitDefault);
 
     // Submit and check error text is displayed
-    await driver
-      .wait(
-        until.elementLocated(By.css('#RequestProofForm__submit-btn > span')),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#RequestProofForm__submit-btn > span'),
         ppWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
-      ),
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
       ppWaitDefault,
     );
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(3) .ant-form-item-explain'),
-      ),
+
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(3) .ant-form-item-explain'),
       ppWaitDefault,
     );
-    await driver
-      .findElement(By.css('#RequestProofForm__cancel-btn > span'))
-      .click();
+
+    await (
+      await driver.findElement(By.css('#RequestProofForm__cancel-btn > span'))
+    ).click();
   });
 });

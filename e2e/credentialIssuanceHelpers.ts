@@ -78,12 +78,12 @@ export async function e2eEnterCredentialProposalDetails(
   attributes: { name: string; value: string }[],
 ): Promise<void> {
   await e2eNavigateToRequestedCredentialsCard();
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(By.css('#CredentialRequestsCard__new-btn > span')),
       ciWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsVisible(
@@ -95,25 +95,28 @@ export async function e2eEnterCredentialProposalDetails(
     ciWaitDefault,
   );
 
-  await driver
-    .wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
-    .sendKeys(schemaId);
-  await driver
-    .wait(until.elementLocated(By.id('message')), ciWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('message')), ciWaitDefault)
-    .sendKeys(message);
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
+  ).click();
 
-  await driver
-    .wait(
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
+  ).sendKeys(schemaId);
+
+  await (
+    await driver.wait(until.elementLocated(By.id('message')), ciWaitDefault)
+  ).click();
+
+  await (
+    await driver.wait(until.elementLocated(By.id('message')), ciWaitDefault)
+  ).sendKeys(message);
+
+  await (
+    await driver.wait(
       until.elementLocated(By.xpath("//input[@id='DIDCommSelections']/../..")),
       ciWaitDefault,
     )
-    .click();
+  ).click();
 
   {
     // Move mouse over selection
@@ -136,18 +139,18 @@ export async function e2eEnterCredentialProposalDetails(
   }
 
   for (let i = 0; i < attributes.length; i++) {
-    await driver
-      .wait(
+    await (
+      await driver.wait(
         until.elementLocated(By.id(`attribute_${attributes[i].name}`)),
         ciWaitDefault,
       )
-      .click();
-    await driver
-      .wait(
+    ).click();
+    await (
+      await driver.wait(
         until.elementLocated(By.id(`attribute_${attributes[i].name}`)),
         ciWaitDefault,
       )
-      .sendKeys(attributes[i].value);
+    ).sendKeys(attributes[i].value);
   }
 }
 
@@ -179,12 +182,12 @@ export async function e2eSendCredentialProposal(
     attributes,
   );
 
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(By.css('#ProposeCredentialForm__submit-btn > span')),
       ciWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsNotVisible(
@@ -210,14 +213,14 @@ export async function e2eSendCredentialProposal(
 
   // Get the thread id to use in looking up the
   // credential proposal in the issuer
-  const credentialThread = await driver
-    .wait(
+  const credentialThread = await (
+    await driver.wait(
       until.elementLocated(
         By.xpath(`//td[contains(.,'${connectionAlias}')]/../td[2]`),
       ),
       ciWaitDefault,
     )
-    .getText();
+  ).getText();
 
   return credentialThread;
 }

@@ -79,12 +79,12 @@ export async function e2eEnterProofRequestDetails(
   attributes: { name: string; toggleRequired: boolean }[],
 ): Promise<void> {
   await e2eNavigateToVerifierActiveProofRequestsCard();
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(By.css('#ActiveProofRequestsCard__new-btn > span')),
       ppWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsVisible(
@@ -96,25 +96,25 @@ export async function e2eEnterProofRequestDetails(
     ppWaitDefault,
   );
 
-  await driver
-    .wait(until.elementLocated(By.id('schemaId')), ppWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('schemaId')), ppWaitDefault)
-    .sendKeys(schemaId);
-  await driver
-    .wait(until.elementLocated(By.id('message')), ppWaitDefault)
-    .click();
-  await driver
-    .wait(until.elementLocated(By.id('message')), ppWaitDefault)
-    .sendKeys(message);
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaId')), ppWaitDefault)
+  ).click();
+  await (
+    await driver.wait(until.elementLocated(By.id('schemaId')), ppWaitDefault)
+  ).sendKeys(schemaId);
+  await (
+    await driver.wait(until.elementLocated(By.id('message')), ppWaitDefault)
+  ).click();
+  await (
+    await driver.wait(until.elementLocated(By.id('message')), ppWaitDefault)
+  ).sendKeys(message);
 
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(By.xpath("//input[@id='DIDCommSelections']/../..")),
       ppWaitDefault,
     )
-    .click();
+  ).click();
 
   {
     // Move mouse over selection
@@ -146,7 +146,7 @@ export async function e2eEnterProofRequestDetails(
         ),
         ppWaitDefault,
       );
-      checkBox.click();
+      await checkBox.click();
     }
   }
 }
@@ -178,12 +178,12 @@ export async function e2eSendProofRequest(
     attributes,
   );
 
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(By.css('#RequestProofForm__submit-btn > span')),
       ppWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsNotVisible(
@@ -207,14 +207,14 @@ export async function e2eSendProofRequest(
 
   // Get the thread id to use in looking up the
   // proof request in future actions
-  const proofRequestThread = await driver
-    .wait(
+  const proofRequestThread = await (
+    await driver.wait(
       until.elementLocated(
         By.xpath(`//td[contains(.,'${connectionAlias}')]/../td[2]`),
       ),
       ppWaitDefault,
     )
-    .getText();
+  ).getText();
 
   return proofRequestThread;
 }
@@ -272,7 +272,7 @@ export async function e2eEnterProofPresentationDetails(
     }
 
     if (attributes[i].toggleReveal) {
-      checkBox.click();
+      await checkBox.click();
     }
   }
 }
@@ -296,14 +296,14 @@ export async function e2eSendProofPresentation(
 ): Promise<void> {
   await e2eEnterProofPresentationDetails(proofThreadId, attributes);
 
-  await driver
-    .wait(
+  await (
+    await driver.wait(
       until.elementLocated(
         By.css('#PreparePresentationForm__submit-btn > span'),
       ),
       ppWaitDefault,
     )
-    .click();
+  ).click();
 
   await driver.wait(
     until.elementIsNotVisible(

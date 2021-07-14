@@ -45,13 +45,13 @@ export const AcceptInvitationForm: React.FC<Props> = (props) => {
       // Base64 formated invitation and place it into
       // the correct ConnectionInvitationAcceptaParams.invitation
       // field.
-      const inviteParam = values.invitation.replace(
+      const inviteParam = values.AcceptInvitationForm_invitation.replace(
         /(http:\/\/.*)?\?c_i=/i,
         '',
       );
       const inviteTxt = inviteParam ? atob(inviteParam) : '';
       const acceptDetails: ConnectionAcceptParams = {
-        alias: values.myAlias,
+        alias: values.AcceptInvitationForm_alias,
         mode: ConnRecord.AcceptEnum.Auto,
         invitation: JSON.parse(inviteTxt),
       };
@@ -68,7 +68,7 @@ export const AcceptInvitationForm: React.FC<Props> = (props) => {
       onFinish={handleSubmit}
       layout="vertical">
       <Form.Item
-        name="myAlias"
+        name="AcceptInvitationForm_alias"
         label="Label for Connection"
         rules={[
           {
@@ -79,7 +79,7 @@ export const AcceptInvitationForm: React.FC<Props> = (props) => {
         <Input type="text" placeholder="e.g. Bobs_Trophies" />
       </Form.Item>
       <Form.Item
-        name="invitation"
+        name="AcceptInvitationForm_invitation"
         label="Encoded Invitation URL"
         rules={[
           {
@@ -87,7 +87,7 @@ export const AcceptInvitationForm: React.FC<Props> = (props) => {
             message: 'Please provide the Invitation URL for the Connection.',
           },
         ]}>
-        <TextArea id="invitation_input" rows={9} allowClear={true} />
+        <TextArea rows={9} allowClear={true} />
       </Form.Item>
 
       {submitState.error && (

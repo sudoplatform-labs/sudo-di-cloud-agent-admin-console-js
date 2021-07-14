@@ -1,7 +1,8 @@
-import { By, until } from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 import {
   e2eHoverOverCardInfoIcon,
   e2eInitiateThenCancelCardForm,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import { e2eCreateCredentialDefinition } from './credentialDefinitionHelpers';
 import {
@@ -45,42 +46,41 @@ describe('Credential Definition', function () {
   it('CD-0201 Attempt invalid create credential definition without name or schema', async function () {
     await e2eNavigateToCredentialDefinitionsCard();
 
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#CredentialDefinitionsCard__create-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CredentialDefinitionsCard__create-btn > span'),
         cdWaitDefault,
       )
-      .click();
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('CreateCredentialDefinitionForm')),
-          cdWaitDefault,
-        ),
-      ),
+    ).click();
+
+    await e2eWaitElementVisible(
+      By.id('CreateCredentialDefinitionForm'),
       cdWaitDefault,
     );
+
     // Try submit with no data and make sure the two mandatory fields present
     // an error.
-    await driver
-      .findElement(By.css('#CreateCredentialDefinitionForm__submit-btn > span'))
-      .click();
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(2) .ant-form-item-explain'),
-      ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CreateCredentialDefinitionForm__submit-btn > span'),
+        cdWaitDefault,
+      )
+    ).click();
+
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(2) .ant-form-item-explain'),
       cdWaitDefault,
     );
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
-      ),
+
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
       cdWaitDefault,
     );
-    await driver
-      .findElement(By.css('#CreateCredentialDefinitionForm__cancel-btn > span'))
-      .click();
+
+    await (
+      await driver.findElement(
+        By.css('#CreateCredentialDefinitionForm__cancel-btn > span'),
+      )
+    ).click();
   });
 });

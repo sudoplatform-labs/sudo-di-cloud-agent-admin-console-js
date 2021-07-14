@@ -1,9 +1,10 @@
-import { By, until } from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 import {
   e2eExecuteTableRowDropdownAction,
   e2eExecuteTableRowRemoveAction,
   e2eHoverOverCardInfoIcon,
   e2eInitiateThenCancelCardForm,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import { e2eAcceptInvitation, e2eCreateInvitation } from './connectionHelpers';
 import { e2eCreateCredentialDefinition } from './credentialDefinitionHelpers';
@@ -172,47 +173,34 @@ describe('Credential Issuance', function () {
 
   it('CI-0201 Attempt invalid credential request without attributes', async function () {
     await e2eNavigateToRequestedCredentialsCard();
-    await driver
-      .wait(
-        until.elementLocated(By.css('#CredentialRequestsCard__new-btn > span')),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#CredentialRequestsCard__new-btn > span'),
         ciWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementIsVisible(
-        await driver.wait(
-          until.elementLocated(By.id('ProposeCredentialForm')),
-          ciWaitDefault,
-        ),
-      ),
-      ciWaitDefault,
-    );
-
+    await e2eWaitElementVisible(By.id('ProposeCredentialForm'), ciWaitDefault);
     // Submit and check error text is displayed
-    await driver
-      .wait(
-        until.elementLocated(
-          By.css('#ProposeCredentialForm__submit-btn > span'),
-        ),
+    await (
+      await e2eWaitElementVisible(
+        By.css('#ProposeCredentialForm__submit-btn > span'),
         ciWaitDefault,
       )
-      .click();
+    ).click();
 
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
-      ),
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(1) .ant-form-item-explain'),
       ciWaitDefault,
     );
-    await driver.wait(
-      until.elementLocated(
-        By.css('.ant-row:nth-child(3) .ant-form-item-explain'),
-      ),
+    await e2eWaitElementVisible(
+      By.css('.ant-row:nth-child(3) .ant-form-item-explain'),
       ciWaitDefault,
     );
-    await driver
-      .findElement(By.css('#ProposeCredentialForm__cancel-btn > span'))
-      .click();
+    await (
+      await driver.findElement(
+        By.css('#ProposeCredentialForm__cancel-btn > span'),
+      )
+    ).click();
   });
 });
