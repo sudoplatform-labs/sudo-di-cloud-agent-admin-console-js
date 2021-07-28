@@ -1,3 +1,4 @@
+import { PresentProofRecordsGetRoleEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import React from 'react';
 import { CompletedProofsCard } from '../../../../components/Proofs/CompletedProofsCard';
 
@@ -6,5 +7,5 @@ import { CompletedProofsCard } from '../../../../components/Proofs/CompletedProo
  * completed by this Agent acting as a Verifier.
  */
 export const CompletedProofRequestsCard: React.FC = () => {
-  return <CompletedProofsCard role="verifier"></CompletedProofsCard>;
+  return <CompletedProofsCard role={PresentProofRecordsGetRoleEnum.Verifier}></CompletedProofsCard>;
 };

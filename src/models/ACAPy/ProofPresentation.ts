@@ -14,29 +14,20 @@
 import {
   ConnRecord,
   IndyCredPrecis,
+  IndyPresSpec,
+  PresentProofRecordsGetRoleEnum,
+  PresentProofRecordsGetStateEnum,
   V10PresentationExchange,
-  V10PresentationRequest,
   V10PresentationSendRequestRequest,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { CloudAgentAPI } from '../../containers/App/AppContext';
 import { reportCloudAgentError } from '../../utils/errorlog';
 
-export type RoleValues = 'prover' | 'verifier';
-export type V10IndyProofExchangeState =
-  | 'proposal_sent'
-  | 'proposal_received'
-  | 'request_sent'
-  | 'request_received'
-  | 'presentation_sent'
-  | 'presentation_received'
-  | 'verified'
-  | 'presentation_acked';
-
 export type ProofExchangeRecordFilterParams = {
   connection?: string; // DIDComm connection Id
   thread?: string; // Protocol Thread Id
-  role?: RoleValues;
-  states?: V10IndyProofExchangeState[];
+  role?: PresentProofRecordsGetRoleEnum;
+  states?: PresentProofRecordsGetStateEnum[];
 };
 
 export type CredentialsToPresentationMatchingParams = {
@@ -47,8 +38,8 @@ export type CredentialsToPresentationMatchingParams = {
 };
 
 export type PresentationParams = {
-  presentation: string; // Proof Exchange request Is to match against
-  values: V10PresentationRequest; // Presentation Attributes and values
+  presentation: string; // Proof Exchange Identifier, request Is to match against
+  values: IndyPresSpec; // Presentation Attributes and values
 };
 
 export type PresentationExchangeData = {
@@ -80,18 +71,19 @@ export async function fetchFilteredProofExchangeRecords(
   params: ProofExchangeRecordFilterParams,
 ): Promise<V10PresentationExchange[]> {
   try {
-    const agentResult = await agent.proofs.presentProofRecordsGet(
-      params.connection,
-      params.role,
-      undefined,
-      params.thread,
-    );
+    const agentResult = await agent.presentV10Proofs.presentProofRecordsGet({
+      connectionId: params.connection,
+      role: params.role,
+      threadId: params.thread,
+    });
     const recordList = agentResult.results ?? [];
     const result = recordList.filter(
       (record) =>
         params.states === undefined ||
         (record.state !== undefined &&
-          params.states.includes(record.state as V10IndyProofExchangeState)),
+          params.states.includes(
+            record.state as PresentProofRecordsGetStateEnum,
+          )),
     );
     return result;
   } catch (error) {
@@ -121,10 +113,9 @@ export async function sendProofRequest(
       },
     };
 
-    await agent.proofs.presentProofSendRequestPost(
-      agentRequest,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.presentV10Proofs.presentProofSendRequestPost({
+      body: agentRequest,
+    });
   } catch (error) {
     throw await reportCloudAgentError(`Failed to Send Proof Request`, error);
   }
@@ -135,7 +126,9 @@ export async function deleteProofExchange(
   id: string, // Proof Exchange Record Id
 ): Promise<void> {
   try {
-    await agent.proofs.presentProofRecordsPresExIdDelete(id);
+    await agent.presentV10Proofs.presentProofRecordsPresExIdDelete({
+      presExId: id,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete Proof Exchange Record: ${id}`,
@@ -150,14 +143,13 @@ export async function fetchCredentialsMatchingProof(
 ): Promise<IndyCredPrecis[]> {
   try {
     const referents = params.credentials?.join();
-    const agentResult = await agent.proofs.presentProofRecordsPresExIdCredentialsGet(
-      params.presentation,
-      params.max?.toString(),
-      undefined,
-      referents,
-      params.start?.toString(),
-    );
-
+    const agentResult =
+      await agent.presentV10Proofs.presentProofRecordsPresExIdCredentialsGet({
+        presExId: params.presentation,
+        count: params.max?.toString(),
+        referent: referents,
+        start: params.start?.toString(),
+      });
     return agentResult;
   } catch (error) {
     throw await reportCloudAgentError(
@@ -172,11 +164,12 @@ export async function sendProofPresentation(
   params: PresentationParams,
 ): Promise<void> {
   try {
-    const presentation: V10PresentationRequest = params.values;
-    await agent.proofs.presentProofRecordsPresExIdSendPresentationPost(
-      params.presentation,
-      presentation,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
+    const presentationSpecification: IndyPresSpec = params.values;
+    await agent.presentV10Proofs.presentProofRecordsPresExIdSendPresentationPost(
+      {
+        presExId: params.presentation,
+        body: presentationSpecification,
+      },
     );
   } catch (error) {
     throw await reportCloudAgentError(
@@ -191,9 +184,10 @@ export async function verifyProofPresentation(
   id: string, // Proof Presentation Exchange Id
 ): Promise<void> {
   try {
-    await agent.proofs.presentProofRecordsPresExIdVerifyPresentationPost(
-      id,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
+    await agent.presentV10Proofs.presentProofRecordsPresExIdVerifyPresentationPost(
+      {
+        presExId: id,
+      },
     );
   } catch (error) {
     throw await reportCloudAgentError(

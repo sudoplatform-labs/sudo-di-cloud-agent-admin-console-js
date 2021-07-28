@@ -12,9 +12,9 @@ import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import { VStack } from '../../../../components/layout-stacks';
 import { Heading } from '../../../../components/charts';
 import { modalDanger } from '../../../../components/Form';
-import { CredBrief } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { IndyCredInfo } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
-const OwnedCredentialsInfoTable = Table as React.FC<TableProps<CredBrief>>;
+const OwnedCredentialsInfoTable = Table as React.FC<TableProps<IndyCredInfo>>;
 
 const StyledConsoleTable = styled(OwnedCredentialsInfoTable)`
   ${consoleTableMixin}
@@ -28,7 +28,7 @@ const StyledConsoleTable = styled(OwnedCredentialsInfoTable)`
 `;
 
 interface Props {
-  dataSource: CredBrief[];
+  dataSource: IndyCredInfo[];
   loading?: boolean;
   onDelete: ActionHandler;
 }
@@ -43,7 +43,7 @@ export const OwnedCredentialsList: React.FC<Props> = (props) => {
 
   const makeColumns = (opts: {
     onRemove: ActionHandler;
-  }): ColumnProps<CredBrief>[] => {
+  }): ColumnProps<IndyCredInfo>[] => {
     return [
       {
         title: 'Credential Id',

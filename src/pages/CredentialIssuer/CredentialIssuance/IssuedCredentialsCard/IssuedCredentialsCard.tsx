@@ -16,6 +16,7 @@ import { useInterval } from '../../../../utils/intervals';
 import { IssuedCredentialsList } from './IssuedCredentialsList';
 import { useCallback } from 'react';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
+import { IssueCredentialRecordsGetRoleEnum, IssueCredentialRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Stylised hover information icon to explain reasons for
@@ -59,8 +60,9 @@ export const IssuedCredentialsCard: React.FC = () => {
     const exchangeRecords = await fetchFilteredCredentialExchangeRecords(
       cloudAgentAPIs,
       {
-        role: 'issuer',
-        states: ['credential_issued', 'credential_acked'],
+        role: IssueCredentialRecordsGetRoleEnum.Issuer,
+        states: [ IssueCredentialRecordsGetStateEnum.CredentialIssued, 
+          IssueCredentialRecordsGetStateEnum.CredentialAcked ],
       },
     );
 

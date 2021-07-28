@@ -139,6 +139,51 @@ export async function e2eCheckMessageDisplays(
 }
 
 /**
+ * Utility function to check that a given table being displayed
+ * contains at least one instance of a specified data value
+ *
+ * @param {!string} tableId the value of the table "id" attribute to scope
+ * the xpath operations to the correct table
+ * @param {!string} tableData expected value of a data value displayed in a table cell
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ */
+export async function e2eCheckTableDataPresent(
+  tableId: string,
+  tableData: string,
+  wait: number = commonWaitDefault,
+): Promise<void> {
+  await e2eWaitElementVisible(
+    By.xpath(
+      `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${tableData}')]`,
+    ),
+    wait,
+  );
+}
+
+/**
+ * Utility function to check that a given table being displayed
+ * DOES NOT contain any instances of a specified data value
+ *
+ * @param {!string} tableId the value of the table "id" attribute to scope
+ * the xpath operations to the correct table
+ * @param {!string} tableData value to check does NOT exist in any table cells
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ */
+export async function e2eCheckTableDataNotPresent(
+  tableId: string,
+  tableData: string,
+): Promise<void> {
+  const elements = await driver.findElements(
+    By.xpath(
+      `//div[@id='${tableId}']//table/tbody/tr/td[contains(.,'${tableData}')]`,
+    ),
+  );
+  expect(elements.length).toBeFalsy();
+}
+
+/**
  * Utility function to test form activation on a card followed
  * by cancel works.
  * NOTE: This helper relies on the UI using a consitent id

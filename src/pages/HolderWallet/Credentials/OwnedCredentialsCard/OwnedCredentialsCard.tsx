@@ -14,7 +14,7 @@ import {
 } from '../../../../models/ACAPy/CredentialIssuance';
 import { HStack } from '../../../../components/layout-stacks';
 import { useInterval } from '../../../../utils/intervals';
-import { CredBrief } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { IndyCredInfo } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Stylised hover information icon to explain the purpose of
@@ -62,7 +62,7 @@ export const OwnedCredentialsCard: React.FC = () => {
     { loading: infoLoading, value: credentials, error: agentFailed },
     getOwnedCredentialsInfo,
   ] = useAsyncFn(
-    async (): Promise<CredBrief[]> =>
+    async (): Promise<IndyCredInfo[]> =>
       fetchAllAgentOwnedCredentialDetails(cloudAgentAPIs),
     [cloudAgentAPIs],
   );

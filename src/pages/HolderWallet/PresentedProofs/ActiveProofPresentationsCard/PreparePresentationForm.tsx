@@ -10,8 +10,8 @@ import {
 } from './ProofPresentationAttributeList';
 import {
   IndyCredPrecis,
+  IndyPresSpec,
   V10PresentationExchange,
-  V10PresentationRequest,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import {
   fetchCredentialsMatchingProof,
@@ -57,7 +57,7 @@ export const PreparePresentationForm: React.FC<Props> = (props) => {
 
       // Itterate over all attributes and build the final
       // proof presentation from selected attributes.
-      const finalProofPresentation: V10PresentationRequest = {
+      const finalProofPresentation: IndyPresSpec = {
         requested_attributes: {},
         self_attested_attributes: {},
         trace: values.traceProtocol,
@@ -112,8 +112,8 @@ export const PreparePresentationForm: React.FC<Props> = (props) => {
     const presentationOptions: PresentationSchemaAttribute[] = [];
 
     for (const matchingCredential of matchedCredentials) {
-      if (matchingCredential.presentation_referents) {
-        for (const attributeName of matchingCredential.presentation_referents) {
+      if (matchingCredential.pres_referents) {
+        for (const attributeName of matchingCredential.pres_referents) {
           const possibleOption = {
             possibleValue: matchingCredential?.cred_info?.attrs
               ? matchingCredential.cred_info.attrs[attributeName]

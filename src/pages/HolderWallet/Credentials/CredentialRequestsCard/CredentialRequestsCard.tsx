@@ -19,6 +19,7 @@ import { HStack } from '../../../../components/layout-stacks';
 import { useInterval } from '../../../../utils/intervals';
 import { ProposeCredentialForm } from './ProposeCredentialForm';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
+import { IssueCredentialRecordsGetRoleEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 // There are several modal dialogs which need to be displayed
 // during credential request processing.  ModalState
@@ -71,7 +72,7 @@ export const CredentialRequestsCard: React.FC = () => {
     const exchangeRecords = await fetchFilteredCredentialExchangeRecords(
       cloudAgentAPIs,
       {
-        role: 'holder',
+        role: IssueCredentialRecordsGetRoleEnum.Holder,
       },
     );
     const connections = await fetchAllAgentConnectionDetails(cloudAgentAPIs);

@@ -1,5 +1,4 @@
 {
-  "editor.formatOnSave": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "eslint.validate": [
     "javascript",
@@ -9,5 +8,7 @@
   ],
   "eslint.enable": true,
   "sort-imports.on-save": true,
-  "python.formatting.provider": "black"
+  "python.formatting.provider": "black",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

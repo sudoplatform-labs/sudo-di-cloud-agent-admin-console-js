@@ -8,15 +8,18 @@ import {
   TrustpingApi,
   SchemaApi,
   CredentialDefinitionApi,
-  IssueCredentialApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
   RevocationApi,
   CredentialsApi,
-  PresentProofApi,
-  CredentialDefinitionsCreatedResults,
-  CredentialDefinitionGetResults,
-  CredentialDefinitionSendRequest,
-  CredentialDefinitionSendResults,
+  PresentProofV10Api,
+  PresentProofV20Api,
   CredentialDefinition,
+  CredentialDefinitionsCreatedResult,
+  CredentialDefinitionGetResult,
+  CredentialDefinitionsCredDefIdGetRequest,
+  CredentialDefinitionsPostRequest,
+  TxnOrCredentialDefinitionSendResult,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 const mockContext: CloudAgentAPI = {
@@ -27,10 +30,12 @@ const mockContext: CloudAgentAPI = {
   ping: new TrustpingApi(),
   defineSchemas: new SchemaApi(),
   defineCredentials: new CredentialDefinitionApi(),
-  issueCredentials: new IssueCredentialApi(),
+  issueV10Credentials: new IssueCredentialV10Api(),
+  issueV20Credentials: new IssueCredentialV20Api(),
   revocations: new RevocationApi(),
   credentials: new CredentialsApi(),
-  proofs: new PresentProofApi(),
+  presentV10Proofs: new PresentProofV10Api(),
+  presentV20Proofs: new PresentProofV20Api(),
   httpOptionOverrides: {
     httpPostOptionOverrides: {},
   },
@@ -38,17 +43,18 @@ const mockContext: CloudAgentAPI = {
 
 // di-cloud-agent-sdk mock elements to allow
 // testing of the model-credential-definitions functionality.
-const mockCredentialDefinitionsCreatedResults: CredentialDefinitionsCreatedResults = {
-  credential_definition_ids: ['0', '1', '2'],
-};
+const mockCredentialDefinitionsCreatedResults: CredentialDefinitionsCreatedResult =
+  {
+    credential_definition_ids: ['0', '1', '2'],
+  };
 
-const mockCredentialDefinitionGetResults: CredentialDefinitionGetResults[] = [
+const mockCredentialDefinitionGetResults: CredentialDefinitionGetResult[] = [
   {
     credential_definition: {
       schemaId: 'SCHEMA_ID_0',
-      type: 'CL',
+      type: {},
       ver: '2.0',
-      value: 'VALUES_0',
+      value: {},
       id: 'CREDENTIAL_DEFINITION_ID_0',
       tag: 'CREDENTIAL_NAME_0',
     },
@@ -56,9 +62,9 @@ const mockCredentialDefinitionGetResults: CredentialDefinitionGetResults[] = [
   {
     credential_definition: {
       schemaId: 'SCHEMA_ID_1',
-      type: 'CL',
+      type: {},
       ver: '2.0',
-      value: 'VALUES_1',
+      value: {},
       id: 'CREDENTIAL_DEFINITION_ID_1',
       tag: 'CREDENTIAL_NAME_1',
     },
@@ -66,9 +72,9 @@ const mockCredentialDefinitionGetResults: CredentialDefinitionGetResults[] = [
   {
     credential_definition: {
       schemaId: 'SCHEMA_ID_2',
-      type: 'CL',
+      type: {},
       ver: '2.0',
-      value: 'VALUES_2',
+      value: {},
       id: 'CREDENTIAL_DEFINITION_ID_2',
       tag: 'CREDENTIAL_NAME_2',
     },
@@ -82,61 +88,58 @@ const credentialDefinitionsCreatedResultsSpy = jest
 const credentialDefinitionsCredDefIdGetSpy = jest
   .spyOn(mockContext.defineCredentials, 'credentialDefinitionsCredDefIdGet')
   .mockImplementation(
-    async (credDefId: string) =>
-      mockCredentialDefinitionGetResults[parseInt(credDefId)],
+    async (requestParams: CredentialDefinitionsCredDefIdGetRequest) =>
+      mockCredentialDefinitionGetResults[parseInt(requestParams.credDefId)],
   );
 
 const credentialDefinitionsPostSpy = jest
   .spyOn(mockContext.defineCredentials, 'credentialDefinitionsPost')
   .mockImplementation(
     async (
-      credDefInfo?: CredentialDefinitionSendRequest,
-    ): Promise<CredentialDefinitionSendResults> => {
-      const newCredDef: CredentialDefinitionGetResults = {
+      credDefInfo?: CredentialDefinitionsPostRequest,
+    ): Promise<TxnOrCredentialDefinitionSendResult> => {
+      const newCredDef: CredentialDefinitionGetResult = {
         credential_definition: {
-          schemaId: credDefInfo?.schema_id,
-          type: 'CL',
+          schemaId: credDefInfo?.body?.schema_id,
+          type: {},
           ver: '2.0',
-          value: 'TEST_VALUE_0',
+          value: {},
           id: 'CREDENTIAL_DEFINITION_ID_0',
-          tag: credDefInfo?.tag,
+          tag: credDefInfo?.body?.tag,
         },
       };
       mockCredentialDefinitionGetResults.push(newCredDef);
-      return { credential_definition_id: credDefInfo?.tag };
+      return { sent: { credential_definition_id: credDefInfo?.body?.tag } };
     },
   );
 
 // model-credential-definitions level data EXPECTED as a result
 // of the di-cloud-agent-sdk mock elements being returned
-const expectedCredentialIds: modelCredentialDefinitions.CredentialDefinitionId[] = [
-  '0',
-  '1',
-  '2',
-];
+const expectedCredentialIds: modelCredentialDefinitions.CredentialDefinitionId[] =
+  ['0', '1', '2'];
 
 const expectedCredentialDefinitions: CredentialDefinition[] = [
   {
     id: 'CREDENTIAL_DEFINITION_ID_0',
     schemaId: 'SCHEMA_ID_0',
-    type: 'CL',
-    value: 'VALUES_0',
+    type: {},
+    value: {},
     tag: 'CREDENTIAL_NAME_0',
     ver: '2.0',
   },
   {
     id: 'CREDENTIAL_DEFINITION_ID_1',
     schemaId: 'SCHEMA_ID_1',
-    type: 'CL',
-    value: 'VALUES_1',
+    type: {},
+    value: {},
     tag: 'CREDENTIAL_NAME_1',
     ver: '2.0',
   },
   {
     id: 'CREDENTIAL_DEFINITION_ID_2',
     schemaId: 'SCHEMA_ID_2',
-    type: 'CL',
-    value: 'VALUES_2',
+    type: {},
+    value: {},
     tag: 'CREDENTIAL_NAME_2',
     ver: '2.0',
   },
@@ -144,18 +147,20 @@ const expectedCredentialDefinitions: CredentialDefinition[] = [
 
 describe('model-credential-definitions', () => {
   it('should get full credential identifier list', async () => {
-    const result = await modelCredentialDefinitions.fetchCredentialDefinitionIds(
-      mockContext,
-    );
+    const result =
+      await modelCredentialDefinitions.fetchCredentialDefinitionIds(
+        mockContext,
+      );
     expect(credentialDefinitionsCreatedResultsSpy).toBeCalled();
     expect(result).toEqual(expectedCredentialIds);
   });
 
   it('should get single credential details', async () => {
-    let result = await modelCredentialDefinitions.fetchCredentialDefinitionDetails(
-      mockContext,
-      expectedCredentialIds[0],
-    );
+    let result =
+      await modelCredentialDefinitions.fetchCredentialDefinitionDetails(
+        mockContext,
+        expectedCredentialIds[0],
+      );
     expect(credentialDefinitionsCredDefIdGetSpy).toBeCalled();
     expect(result).toEqual(expectedCredentialDefinitions[0]);
     result = await modelCredentialDefinitions.fetchCredentialDefinitionDetails(
@@ -166,9 +171,10 @@ describe('model-credential-definitions', () => {
   });
 
   it('should get ALL credential details', async () => {
-    const result = await modelCredentialDefinitions.fetchAllAgentCredentialDefinitionDetails(
-      mockContext,
-    );
+    const result =
+      await modelCredentialDefinitions.fetchAllAgentCredentialDefinitionDetails(
+        mockContext,
+      );
     expect(credentialDefinitionsCreatedResultsSpy).toBeCalledTimes(1);
     expect(credentialDefinitionsCredDefIdGetSpy).toBeCalledTimes(3);
     expect(result).toEqual(expectedCredentialDefinitions);

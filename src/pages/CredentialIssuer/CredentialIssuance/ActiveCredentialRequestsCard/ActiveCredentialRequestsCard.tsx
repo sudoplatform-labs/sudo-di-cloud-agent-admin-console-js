@@ -18,6 +18,7 @@ import {
 import { HStack } from '../../../../components/layout-stacks';
 import { useInterval } from '../../../../utils/intervals';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
+import { IssueCredentialRecordsGetRoleEnum, IssueCredentialRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Stylised hover information icon to explain reasons for
@@ -61,14 +62,14 @@ export const ActiveCredentialRequestsCard: React.FC = () => {
     const exchangeRecords = await fetchFilteredCredentialExchangeRecords(
       cloudAgentAPIs,
       {
-        role: 'issuer',
+        role: IssueCredentialRecordsGetRoleEnum.Issuer,
         states: [
-          'proposal_sent',
-          'proposal_received',
-          'offer_sent',
-          'offer_received',
-          'request_sent',
-          'request_received',
+          IssueCredentialRecordsGetStateEnum.ProposalSent,
+          IssueCredentialRecordsGetStateEnum.ProposalReceived,
+          IssueCredentialRecordsGetStateEnum.OfferSent,
+          IssueCredentialRecordsGetStateEnum.OfferReceived,
+          IssueCredentialRecordsGetStateEnum.RequestSent,
+          IssueCredentialRecordsGetStateEnum.RequestReceived,
         ],
       },
     );

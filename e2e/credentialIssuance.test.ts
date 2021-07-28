@@ -1,5 +1,7 @@
 import { By } from 'selenium-webdriver';
 import {
+  e2eCheckTableDataNotPresent,
+  e2eCheckTableDataPresent,
   e2eExecuteTableRowDropdownAction,
   e2eExecuteTableRowRemoveAction,
   e2eHoverOverCardInfoIcon,
@@ -107,8 +109,14 @@ describe('Credential Issuance', function () {
         { name: 'someCredentialValue', value: 'CI-0102 someCredentialValue' },
       ],
     );
-    // Delete new credential from wallet
+    // Abort in progress credential request wallet.
+    // NOTE: In version Cloud Agent 0.500.600 you needed to manually delete in
+    //       progress credentials from both the Holder and Issuer.
+    //       In version 0.700.0 the behaviour changed
+    //       so that if an in-progress request is deleted by the Holder it is
+    //       automatically removed from the Issuer.
     await e2eNavigateToRequestedCredentialsCard();
+    await e2eCheckTableDataPresent('CredentialRequestsList', credentialThread);
     await e2eExecuteTableRowDropdownAction(
       'CredentialRequestsList',
       credentialThread,
@@ -117,15 +125,15 @@ describe('Credential Issuance', function () {
       'Abort',
       'Credential request aborted',
     );
+    await e2eCheckTableDataNotPresent(
+      'CredentialRequestsList',
+      credentialThread,
+    );
 
     await e2eNavigateToActiveCredentialRequestsCard();
-    await e2eExecuteTableRowDropdownAction(
-      'ActiveCredentialRequestsList',
+    await e2eCheckTableDataNotPresent(
+      'CredentialRequestsList',
       credentialThread,
-      'Actions',
-      'Reject Proposal',
-      'Reject',
-      'Credential request aborted',
     );
   });
 

@@ -15,7 +15,7 @@ import { CloudAgentAPI } from '../../containers/App/AppContext';
 import { reportCloudAgentError } from '../../utils/errorlog';
 import {
   Schema,
-  SchemaGetResults,
+  SchemaGetResult,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 export type SchemaDefinitionId = string;
@@ -32,14 +32,14 @@ export async function createSchemaDefinition(
 ): Promise<void> {
   try {
     // Create new schema
-    await agent.defineSchemas.schemasPost(
-      {
+    await agent.defineSchemas.schemasPost({
+      createTransactionForEndorser: false, // We currently don't support using an endorser
+      body: {
         schema_version: params.version,
         schema_name: params.name,
         attributes: params.attributes,
       },
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create Schema on Ledger',
@@ -56,12 +56,12 @@ export async function fetchSchemaDefinitionIds(
   version?: string, // Schema Version
 ): Promise<SchemaDefinitionId[]> {
   try {
-    const schemaList = await agent.defineSchemas.schemasCreatedGet(
-      id,
-      did,
-      name,
-      version,
-    );
+    const schemaList = await agent.defineSchemas.schemasCreatedGet({
+      schemaId: id,
+      schemaIssuerDid: did,
+      schemaName: name,
+      schemaVersion: version,
+    });
     return schemaList.schema_ids ?? [];
   } catch (error) {
     throw await reportCloudAgentError(
@@ -76,9 +76,10 @@ export async function fetchSchemaDefinitionDetails(
   id: SchemaDefinitionId, // Schema Id
 ): Promise<Schema> {
   try {
-    const ledgerSchema: SchemaGetResults = await agent.defineSchemas.schemasSchemaIdGet(
-      id,
-    );
+    const ledgerSchema: SchemaGetResult =
+      await agent.defineSchemas.schemasSchemaIdGet({
+        schemaId: id,
+      });
 
     return ledgerSchema.schema ?? {};
   } catch (error) {
@@ -93,7 +94,7 @@ export async function fetchAllAgentSchemaDefinitionIds(
   agent: CloudAgentAPI,
 ): Promise<SchemaDefinitionId[]> {
   try {
-    const schemaList = await agent.defineSchemas.schemasCreatedGet();
+    const schemaList = await agent.defineSchemas.schemasCreatedGet({});
     const schemaResults: SchemaDefinitionId[] = schemaList.schema_ids ?? [];
     return schemaResults;
   } catch (error) {

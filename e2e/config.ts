@@ -16,7 +16,7 @@ export const env = {
   BASE_URL: 'http://react.webserver:3000',
   BROWSER: 'chrome',
   BROWSER_SERVER: 'http://localhost:4445/wd/hub',
-  HEADLESS: true,
+  HEADLESS: false,
 };
 
 const driversToCleanUp: WebDriver[] = [];

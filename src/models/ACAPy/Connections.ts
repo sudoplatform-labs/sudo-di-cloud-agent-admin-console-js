@@ -14,6 +14,7 @@
 import { CloudAgentAPI } from '../../containers/App/AppContext';
 import {
   ConnRecord,
+  ConnRecordAcceptEnum,
   InvitationResult,
   ReceiveInvitationRequest,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
@@ -21,14 +22,14 @@ import { reportCloudAgentError } from '../../utils/errorlog';
 
 export type ConnectionInvitationParams = {
   alias: string; // Our assigned human friendly name to use for the connection
-  mode: ConnRecord.AcceptEnum; // Manual or Automatic acceptance of invites
+  mode: ConnRecordAcceptEnum; // Manual or Automatic acceptance of invites
   multi: boolean; // Single or multi use invitation
   public: boolean; // whether to use the Agents public DID or create a peer DID
 };
 
 export type ConnectionAcceptParams = {
   alias: string; // Our assigned human friendly name to use for the connection
-  mode: ConnRecord.AcceptEnum; // Manual or Automatic acceptance of invites
+  mode: ConnRecordAcceptEnum; // Manual or Automatic acceptance of invites
   invitation: ReceiveInvitationRequest; // Received invitation details
 };
 
@@ -58,14 +59,13 @@ export async function createConnectionInvite(
   // Get the agents connections and unpack them into our data
   // model.
   try {
-    const result = await agent.connections.connectionsCreateInvitationPost(
-      undefined,
-      params.alias,
-      params.mode === ConnRecord.AcceptEnum.Auto ? true : false,
-      params.multi,
-      params.public,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    const result = await agent.connections.connectionsCreateInvitationPost({
+      alias: params.alias,
+      autoAccept: params.mode === ConnRecordAcceptEnum.Auto ? true : false,
+      multiUse: params.multi,
+      _public: params.public,
+      body: undefined,
+    });
 
     return result;
   } catch (error) {
@@ -81,12 +81,12 @@ export async function acceptConnectionInvite(
   params: ConnectionAcceptParams,
 ): Promise<void> {
   try {
-    await agent.connections.connectionsReceiveInvitationPost(
-      params.invitation,
-      params.alias,
-      params.mode === ConnRecord.AcceptEnum.Auto ? true : false,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.connections.connectionsReceiveInvitationPost({
+      alias: params.alias,
+      autoAccept: params.mode === ConnRecordAcceptEnum.Auto ? true : false,
+      mediationId: undefined,
+      body: params.invitation,
+    });
   } catch (error) {
     throw await reportCloudAgentError('Failed to Accept invitation', error);
   }
@@ -97,7 +97,7 @@ export async function deleteConnection(
   id: string,
 ): Promise<void> {
   try {
-    await agent.connections.connectionsConnIdDelete(id);
+    await agent.connections.connectionsConnIdDelete({ connId: id });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete connection: ${id}`,
@@ -111,11 +111,10 @@ export async function trustPingConnection(
   id: string,
 ): Promise<void> {
   try {
-    await agent.ping.connectionsConnIdSendPingPost(
-      id,
-      undefined,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.ping.connectionsConnIdSendPingPost({
+      connId: id,
+      body: undefined,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Ping connection: ${id}`,
@@ -128,7 +127,7 @@ export async function fetchAllAgentConnectionDetails(
   agent: CloudAgentAPI,
 ): Promise<ConnRecord[]> {
   try {
-    const agentResult = await agent.connections.connectionsGet();
+    const agentResult = await agent.connections.connectionsGet({});
 
     const result = agentResult.results ?? [];
     return result;

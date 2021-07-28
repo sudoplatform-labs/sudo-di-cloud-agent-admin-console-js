@@ -14,11 +14,14 @@ import {
   TrustpingApi,
   SchemaApi,
   CredentialDefinitionApi,
-  IssueCredentialApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
   RevocationApi,
   CredentialsApi,
-  PresentProofApi,
+  PresentProofV10Api,
+  PresentProofV20Api,
   DID,
+  DIDPostureEnum,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { Button } from 'antd';
 import { act } from 'react-dom/test-utils';
@@ -40,10 +43,12 @@ const mockContext: AppState = {
     ping: new TrustpingApi(),
     defineSchemas: new SchemaApi(),
     defineCredentials: new CredentialDefinitionApi(),
-    issueCredentials: new IssueCredentialApi(),
+    issueV10Credentials: new IssueCredentialV10Api(),
+    issueV20Credentials: new IssueCredentialV20Api(),
     revocations: new RevocationApi(),
     credentials: new CredentialsApi(),
-    proofs: new PresentProofApi(),
+    presentV10Proofs: new PresentProofV10Api(),
+    presentV20Proofs: new PresentProofV20Api(),
     httpOptionOverrides: {
       httpPostOptionOverrides: {},
     },
@@ -53,17 +58,17 @@ const mockContext: AppState = {
 const mockDIDs: DID[] = [
   {
     did: '5nELRaChxTyqDEurGYZZyT',
-    posture: DID.PostureEnum.Public,
+    posture: DIDPostureEnum.Public,
     verkey: '3c6nUXA18htaacKzWyPRJmgCiJX3bNmVNAbXZUpuqdeC',
   },
   {
     did: '7GcTXxLAZh2G4NcheNYUzs',
-    posture: DID.PostureEnum.Posted,
+    posture: DIDPostureEnum.Posted,
     verkey: '4RBUKvnhzZFEJa9EuySNhW2RyGYf6C3MvNSNvXNhynxk',
   },
   {
     did: 'B8JdVGJ67ezkNy8kYRVEc8',
-    posture: DID.PostureEnum.WalletOnly,
+    posture: DIDPostureEnum.WalletOnly,
     verkey: '6X6qU9uATxvXKedxET9PzThuYgbBn8ohf9mycVVwUiWR',
   },
 ];

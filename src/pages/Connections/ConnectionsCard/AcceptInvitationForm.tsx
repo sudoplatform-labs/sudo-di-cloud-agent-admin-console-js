@@ -5,7 +5,7 @@ import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { CloudAgentAPI } from '../../../containers/App';
 import { ConnectionAcceptParams } from '../../../models/ACAPy/Connections';
-import { ConnRecord } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { ConnRecordAcceptEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 const { TextArea } = Input;
 
@@ -52,7 +52,7 @@ export const AcceptInvitationForm: React.FC<Props> = (props) => {
       const inviteTxt = inviteParam ? atob(inviteParam) : '';
       const acceptDetails: ConnectionAcceptParams = {
         alias: values.AcceptInvitationForm_alias,
-        mode: ConnRecord.AcceptEnum.Auto,
+        mode: ConnRecordAcceptEnum.Auto,
         invitation: JSON.parse(inviteTxt),
       };
       form.resetFields();

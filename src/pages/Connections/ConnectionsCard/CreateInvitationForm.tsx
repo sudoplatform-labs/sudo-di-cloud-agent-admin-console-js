@@ -9,7 +9,7 @@ import {
   ConnectionInvitationParams,
 } from '../../../models/ACAPy/Connections';
 import {
-  ConnRecord,
+  ConnRecordAcceptEnum,
   InvitationResult,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
@@ -47,7 +47,7 @@ export const CreateInvitationForm: React.FC<Props> = (props) => {
 
       const params: ConnectionInvitationParams = {
         alias: values.CreateInvitationForm_alias,
-        mode: ConnRecord.AcceptEnum.Auto,
+        mode: ConnRecordAcceptEnum.Auto,
         multi: values.multiUse,
         public: false,
       };

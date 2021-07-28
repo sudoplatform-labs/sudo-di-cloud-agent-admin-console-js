@@ -45,14 +45,13 @@ export async function acceptLedgerTaa(
   params: TAAAcceptParams,
 ): Promise<void> {
   try {
-    await agent.ledger.ledgerTaaAcceptPost(
-      {
+    await agent.ledger.ledgerTaaAcceptPost({
+      body: {
         mechanism: params.mechanism,
         text: params.text,
         version: params.version,
       },
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Transaction Author Agreement NOT ACCEPTED by Ledger`,

@@ -18,12 +18,18 @@ import {
   TrustpingApi,
   SchemaApi,
   CredentialDefinitionApi,
-  IssueCredentialApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
   RevocationApi,
   CredentialsApi,
-  PresentProofApi,
+  PresentProofV10Api,
+  PresentProofV20Api,
   ConnRecord,
   InvitationResult,
+  ConnRecordAcceptEnum,
+  ConnRecordTheirRoleEnum,
+  ConnRecordInvitationModeEnum,
+  ConnRecordRoutingStateEnum,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { Button, Modal } from 'antd';
 import { act } from 'react-dom/test-utils';
@@ -46,10 +52,12 @@ const mockContext: AppState = {
     ping: new TrustpingApi(),
     defineSchemas: new SchemaApi(),
     defineCredentials: new CredentialDefinitionApi(),
-    issueCredentials: new IssueCredentialApi(),
+    issueV10Credentials: new IssueCredentialV10Api(),
+    issueV20Credentials: new IssueCredentialV20Api(),
     revocations: new RevocationApi(),
     credentials: new CredentialsApi(),
-    proofs: new PresentProofApi(),
+    presentV10Proofs: new PresentProofV10Api(),
+    presentV20Proofs: new PresentProofV20Api(),
     httpOptionOverrides: {
       httpPostOptionOverrides: {},
     },
@@ -62,23 +70,23 @@ const mockConnections: ConnRecord[] = [
     state: 'active',
     created_at: '2020-09-14 02:08:00.662753Z',
     updated_at: '2020-09-15 03:11:54.545692Z',
-    accept: ConnRecord.AcceptEnum.Auto,
+    accept: ConnRecordAcceptEnum.Auto,
     inbound_connection_id: '',
     alias: 'TEST_ALIAS_1',
     my_did: '67sknz4XatdDb7AgZaziye',
     their_did: '4W7DjqPZZykkp5RsqyiUM4',
     their_label: 'Aries Cloud Agent',
-    their_role: ConnRecord.TheirRoleEnum.Invitee,
+    their_role: ConnRecordTheirRoleEnum.Invitee,
     invitation_key: 'Evcm83UGndYYuSL65ErwGASvAjT5kTUPduKh7V2A6THg',
     request_id: '',
-    invitation_mode: ConnRecord.InvitationModeEnum.Once,
-    routing_state: ConnRecord.RoutingStateEnum.None,
+    invitation_mode: ConnRecordInvitationModeEnum.Once,
+    routing_state: ConnRecordRoutingStateEnum.None,
     error_msg: '',
   },
   {
     alias: 'TEST_ALIAS_MISSING_FIELDS',
-    their_role: ConnRecord.TheirRoleEnum.Inviter,
-    routing_state: ConnRecord.RoutingStateEnum.None,
+    their_role: ConnRecordTheirRoleEnum.Inviter,
+    routing_state: ConnRecordRoutingStateEnum.None,
   },
 ];
 
@@ -101,12 +109,12 @@ const createConnectionInviteSpy = jest
         my_did: '67sknz4XatdDb7AgZaziye',
         their_did: '4W7DjqPZZykkp5RsqyiUM4',
         their_label: 'Aries Cloud Agent',
-        their_role: ConnRecord.TheirRoleEnum.Invitee,
+        their_role: ConnRecordTheirRoleEnum.Invitee,
         invitation_key: 'Evcm83UGndYYuSL65ErwGASvAjT5kTUPduKh7V2A6THg',
         invitation_mode: connectParams.multi
-          ? ConnRecord.InvitationModeEnum.Multi
-          : ConnRecord.InvitationModeEnum.Once,
-        routing_state: ConnRecord.RoutingStateEnum.None,
+          ? ConnRecordInvitationModeEnum.Multi
+          : ConnRecordInvitationModeEnum.Once,
+        routing_state: ConnRecordRoutingStateEnum.None,
       };
       mockConnections.push(newConnection);
       return {

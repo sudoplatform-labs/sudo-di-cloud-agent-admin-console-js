@@ -19,7 +19,7 @@ export async function createPrivateDID(agent: CloudAgentAPI): Promise<DID> {
   // Create a new wallet private DID and return the
   // resulting details.
   try {
-    const newDID = await agent.wallet.walletDidCreatePost();
+    const newDID = await agent.wallet.walletDidCreatePost({});
     return newDID.result ?? {};
   } catch (error) {
     throw await reportCloudAgentError(
@@ -34,7 +34,7 @@ export async function assignAgentsPublicDID(
   did: string, // Wallet DID to assign as public for Agent operations
 ): Promise<void> {
   try {
-    await agent.wallet.walletDidPublicPost(did);
+    await agent.wallet.walletDidPublicPost({ did: did });
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Assign new Public Decentralized Identifier for Wallet',
@@ -49,7 +49,7 @@ export async function writeDIDToLedger(
   verkey: string,
 ): Promise<void> {
   try {
-    await agent.ledger.ledgerRegisterNymPost(did, verkey);
+    await agent.ledger.ledgerRegisterNymPost({ did: did, verkey: verkey });
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Write Decentralized Identifier to Ledger',
@@ -60,7 +60,7 @@ export async function writeDIDToLedger(
 
 export async function fetchAllAgentDIDs(agent: CloudAgentAPI): Promise<DID[]> {
   try {
-    const didList = await agent.wallet.walletDidGet();
+    const didList = await agent.wallet.walletDidGet({});
     return didList.results ?? [];
   } catch (error) {
     throw await reportCloudAgentError(

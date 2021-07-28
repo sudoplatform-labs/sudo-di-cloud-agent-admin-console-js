@@ -17,6 +17,7 @@ import {
 } from '../../../../models/ACAPy/ProofPresentation';
 import { PreparePresentationForm } from './PreparePresentationForm';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
+import { PresentProofRecordsGetRoleEnum, PresentProofRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 // Modal dialogs need to be displayed
 // during proof presentation preparation.  ModalState
@@ -72,15 +73,15 @@ export const ActiveProofPresentationsCard: React.FC = () => {
     const exchangeRecords = await fetchFilteredProofExchangeRecords(
       cloudAgentAPIs,
       {
-        role: 'prover',
+        role: PresentProofRecordsGetRoleEnum.Prover,
         states: [
-          'proposal_sent',
-          'proposal_received',
-          'request_sent',
-          'request_received',
-          'presentation_sent',
-          'presentation_received',
-          'verified',
+          PresentProofRecordsGetStateEnum.ProposalSent,
+          PresentProofRecordsGetStateEnum.ProposalReceived,
+          PresentProofRecordsGetStateEnum.RequestSent,
+          PresentProofRecordsGetStateEnum.RequestReceived,
+          PresentProofRecordsGetStateEnum.PresentationSent,
+          PresentProofRecordsGetStateEnum.PresentationReceived,
+          PresentProofRecordsGetStateEnum.Verified,
         ],
       },
     );

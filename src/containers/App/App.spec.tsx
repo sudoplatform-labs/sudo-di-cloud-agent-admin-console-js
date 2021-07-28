@@ -15,10 +15,12 @@ import {
   TrustpingApi,
   SchemaApi,
   CredentialDefinitionApi,
-  IssueCredentialApi,
   RevocationApi,
   CredentialsApi,
-  PresentProofApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
+  PresentProofV10Api,
+  PresentProofV20Api,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 const mockEnvironment: EnvironmentInfo = {
@@ -76,17 +78,19 @@ describe('containers/App', () => {
       environment: mockEnvironment,
       featureFlags: [FeatureFlags.FeatureFlag.EXAMPLE_FEATURE],
       cloudAgentAPIs: {
-        wallet: expect.any(WalletApi),
-        ledger: expect.any(LedgerApi),
-        introductions: expect.any(IntroductionApi),
         connections: expect.any(ConnectionApi),
-        ping: expect.any(TrustpingApi),
-        defineSchemas: expect.any(SchemaApi),
-        defineCredentials: expect.any(CredentialDefinitionApi),
-        issueCredentials: expect.any(IssueCredentialApi),
-        revocations: expect.any(RevocationApi),
         credentials: expect.any(CredentialsApi),
-        proofs: expect.any(PresentProofApi),
+        defineCredentials: expect.any(CredentialDefinitionApi),
+        defineSchemas: expect.any(SchemaApi),
+        introductions: expect.any(IntroductionApi),
+        ledger: expect.any(LedgerApi),
+        ping: expect.any(TrustpingApi),
+        revocations: expect.any(RevocationApi),
+        wallet: expect.any(WalletApi),
+        issueV10Credentials: expect.any(IssueCredentialV10Api),
+        issueV20Credentials: expect.any(IssueCredentialV20Api),
+        presentV10Proofs: expect.any(PresentProofV10Api),
+        presentV20Proofs: expect.any(PresentProofV20Api),
       },
     });
   });

@@ -27,25 +27,27 @@ export type CredentialDefinitionCreateParams = {
 export async function fetchCredentialDefinitionIds(
   agent: CloudAgentAPI,
   id?: string, // Credential Definiition Id
-  issuer_did?: string,
-  schema_id?: string,
-  schema_creator_did?: string,
-  schema_name?: string,
-  schema_version?: string,
+  issuerDid?: string,
+  schemaId?: string,
+  schemaCreatorDid?: string,
+  schemaName?: string,
+  schemaVersion?: string,
 ): Promise<CredentialDefinitionId[]> {
   try {
-    const credentialDefinitionsList = await agent.defineCredentials.credentialDefinitionsCreatedGet(
-      id,
-      issuer_did,
-      schema_id,
-      schema_creator_did,
-      schema_name,
-      schema_version,
-    );
+    const credentialDefinitionsList =
+      await agent.defineCredentials.credentialDefinitionsCreatedGet({
+        credDefId: id,
+        issuerDid: issuerDid,
+        schemaId: schemaId,
+        schemaIssuerDid: schemaCreatorDid,
+        schemaName: schemaName,
+        schemaVersion: schemaVersion,
+      });
+
     return credentialDefinitionsList.credential_definition_ids ?? [];
   } catch (error) {
     throw await reportCloudAgentError(
-      `Credential Definition not found for issuerDID: ${issuer_did} schemaId: ${schema_id}`,
+      `Credential Definition not found for issuerDID: ${issuerDid} schemaId: ${schemaId}`,
       error,
     );
   }
@@ -56,14 +58,14 @@ export async function createCredentialDefinition(
   params: CredentialDefinitionCreateParams,
 ): Promise<void> {
   try {
-    await agent.defineCredentials.credentialDefinitionsPost(
-      {
+    await agent.defineCredentials.credentialDefinitionsPost({
+      createTransactionForEndorser: false, // We currently don't support using an endorser
+      body: {
         tag: params.tag,
         support_revocation: params.revocable,
         schema_id: params.schema,
       },
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create Credential Definition on Ledger',
@@ -77,10 +79,10 @@ export async function fetchCredentialDefinitionDetails(
   id: CredentialDefinitionId,
 ): Promise<CredentialDefinition> {
   try {
-    const ledgerCredDef = await agent.defineCredentials.credentialDefinitionsCredDefIdGet(
-      id,
-    );
-
+    const ledgerCredDef =
+      await agent.defineCredentials.credentialDefinitionsCredDefIdGet({
+        credDefId: id,
+      });
     return ledgerCredDef.credential_definition ?? {};
   } catch (error) {
     throw await reportCloudAgentError(
@@ -94,7 +96,8 @@ export async function fetchAllAgentCredentialDefinitionIds(
   agent: CloudAgentAPI,
 ): Promise<CredentialDefinitionId[]> {
   try {
-    const credentialDefinitionList = await agent.defineCredentials.credentialDefinitionsCreatedGet();
+    const credentialDefinitionList =
+      await agent.defineCredentials.credentialDefinitionsCreatedGet({});
     const credentialDefinitionResults: CredentialDefinitionId[] =
       credentialDefinitionList.credential_definition_ids ?? [];
     return credentialDefinitionResults;

@@ -16,12 +16,13 @@ import {
 import { CompletedProofsList } from '../../components/Proofs/CompletedProofsList';
 import { fetchAllAgentConnectionDetails } from '../../models/ACAPy/Connections';
 import { HStack } from '../layout-stacks';
+import { PresentProofRecordsGetRoleEnum, PresentProofRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Props define the agent role for this card instance
  */
 interface Props {
-  role: 'prover' | 'verifier';
+  role: PresentProofRecordsGetRoleEnum;
 }
 
 /**
@@ -68,7 +69,7 @@ export const CompletedProofsCard: React.FC<Props> = (props) => {
       cloudAgentAPIs,
       {
         role: role,
-        states: ['verified', 'presentation_acked'],
+        states: [ PresentProofRecordsGetStateEnum.Verified, PresentProofRecordsGetStateEnum.PresentationAcked ],
       },
     );
     const connections = await fetchAllAgentConnectionDetails(cloudAgentAPIs);

@@ -8,11 +8,13 @@ import {
   CredentialDefinitionApi,
   CredentialsApi,
   IntroductionApi,
-  IssueCredentialApi,
   SchemaApi,
-  PresentProofApi,
   TrustpingApi,
   RevocationApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
+  PresentProofV10Api,
+  PresentProofV20Api,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 // The Cloud Agent SDK exports each API as a class which
@@ -26,10 +28,12 @@ export type CloudAgentAPI = {
   ping: TrustpingApi;
   defineSchemas: SchemaApi;
   defineCredentials: CredentialDefinitionApi;
-  issueCredentials: IssueCredentialApi;
+  issueV10Credentials: IssueCredentialV10Api;
+  issueV20Credentials: IssueCredentialV20Api;
   revocations: RevocationApi;
   credentials: CredentialsApi;
-  proofs: PresentProofApi;
+  presentV10Proofs: PresentProofV10Api;
+  presentV20Proofs: PresentProofV20Api;
   httpOptionOverrides: {
     // Different Swagger SDK generators insert different HTTP
     // headers so we override ones that cause issues

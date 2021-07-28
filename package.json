@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "copy-acapy-config": "cp -f node_modules/@sudoplatform-labs/sudo-di-cloud-agent/bin/acapy.json ./public/",
+    "add-acapy-seed": "./utils/add-acapy-seed.sh -c ./public/acapy.json",
     "bootstrap": "yarn install && yarn copy-acapy-config",
     "start": "react-scripts start",
     "lint": "eslint ./src --ext ts",
@@ -22,7 +23,7 @@
     "test:start-browser-server-debug": "./e2e/browser-server.sh start -i selenium/standalone-chrome-debug:3.141.59 -p 4445",
     "test:start-browser-server": "./e2e/browser-server.sh start -i selenium/standalone-chrome:3.141.59 -p 4445",
     "test:stop-browser-server": "./e2e/browser-server.sh stop",
-    "test:start-e2e-env": "yarn di-env start -s 7837E638F94B43B5AD22C97354B997F9 && yarn test:update-acapy-address && yarn test:start-browser-server-debug",
+    "test:start-e2e-env": "yarn di-env start -c $PWD/public/acapy.json && yarn test:update-acapy-address && yarn test:start-browser-server-debug",
     "test:stop-e2e-env": "yarn test:stop-browser-server; yarn di-env down",
     "test:run-e2e": "rm -rf .e2e_test_success && yarn test:start-e2e-env && yarn test:execute-e2e && touch .e2e_test_success; yarn test:stop-e2e-env",
     "test:unit": "yarn react-scripts test",
@@ -42,7 +43,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.5",
-    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.3.0",
+    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.4.0",
     "antd": "^4.5.4",
     "antd-mask-input": "^0.1.13",
     "color": "^3.1.2",

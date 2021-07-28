@@ -12,18 +12,20 @@ import { AppContext, CloudAgentAPI } from './AppContext';
 import { GlobalStyle } from './global-style';
 import { getRoot } from './routes';
 import {
-  WalletApi,
-  LedgerApi,
   ConnectionApi,
-  CredentialDefinitionApi,
-  CredentialsApi,
-  IntroductionApi,
-  IssueCredentialApi,
-  SchemaApi,
-  PresentProofApi,
-  TrustpingApi,
-  RevocationApi,
   Configuration,
+  CredentialsApi,
+  CredentialDefinitionApi,
+  IntroductionApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
+  LedgerApi,
+  PresentProofV10Api,
+  PresentProofV20Api,
+  RevocationApi,
+  SchemaApi,
+  TrustpingApi,
+  WalletApi,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 const Container = styled.div`
@@ -77,10 +79,12 @@ export const App: React.FC = () => {
       ping: new TrustpingApi(cloudAgentConfiguration),
       defineSchemas: new SchemaApi(cloudAgentConfiguration),
       defineCredentials: new CredentialDefinitionApi(cloudAgentConfiguration),
-      issueCredentials: new IssueCredentialApi(cloudAgentConfiguration),
+      issueV10Credentials: new IssueCredentialV10Api(cloudAgentConfiguration),
+      issueV20Credentials: new IssueCredentialV20Api(cloudAgentConfiguration),
       revocations: new RevocationApi(cloudAgentConfiguration),
       credentials: new CredentialsApi(cloudAgentConfiguration),
-      proofs: new PresentProofApi(cloudAgentConfiguration),
+      presentV10Proofs: new PresentProofV10Api(cloudAgentConfiguration),
+      presentV20Proofs: new PresentProofV20Api(cloudAgentConfiguration),
       httpOptionOverrides: {
         httpPostOptionOverrides: {
           headers: { 'Content-Type': 'application/json' },

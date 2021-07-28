@@ -14,24 +14,15 @@
 import { CloudAgentAPI } from '../../containers/App/AppContext';
 import {
   ConnRecord,
-  CredBrief,
   CredentialPreview,
+  IndyCredInfo,
+  IssueCredentialRecordsGetRoleEnum,
+  IssueCredentialRecordsGetStateEnum,
   V10CredentialExchange,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { reportCloudAgentError } from '../../utils/errorlog';
 
 export type InitiatorValues = 'self' | 'external';
-export type RoleValues = 'holder' | 'issuer';
-export type CredentialExchangeState =
-  | 'proposal_sent'
-  | 'proposal_received'
-  | 'offer_sent'
-  | 'offer_received'
-  | 'request_sent'
-  | 'request_received'
-  | 'credential_issued'
-  | 'credential_received'
-  | 'credential_acked';
 
 export type CredentialRequestParams = {
   schema_name?: string; // Name of a schema to request credentials for
@@ -50,8 +41,8 @@ export type CredentialRequestParams = {
 export type CredentialExchangeRecordFilterParams = {
   connection?: string; // DIDComm conneciton Id
   thread?: string; // Protocol Thread Id
-  role?: RoleValues;
-  states?: CredentialExchangeState[];
+  role?: IssueCredentialRecordsGetRoleEnum;
+  states?: IssueCredentialRecordsGetStateEnum[];
 };
 
 export type CredentialExchangeData = {
@@ -83,7 +74,7 @@ export async function deleteCredential(
   id: string, // Credential Id
 ): Promise<void> {
   try {
-    await agent.credentials.credentialCredentialIdDelete(id);
+    await agent.credentials.credentialCredentialIdDelete({ credentialId: id });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete credential: ${id}`,
@@ -97,7 +88,9 @@ export async function deleteCredentialExchangeRecord(
   id: string, // Credential Exchange Record Id
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdDelete(id);
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdDelete({
+      credExId: id,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete Credential Exchange Record: ${id}`,
@@ -112,12 +105,15 @@ export async function abortCredentialExchange(
   reason: string,
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdProblemReportPost(
-      id,
-      { explain_ltxt: reason },
-      agent.httpOptionOverrides.httpPostOptionOverrides,
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdProblemReportPost(
+      {
+        credExId: id,
+        body: { description: reason },
+      },
     );
-    await agent.issueCredentials.issueCredentialRecordsCredExIdDelete(id);
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdDelete({
+      credExId: id,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Abort Credential Issue: ${id}`,
@@ -145,10 +141,9 @@ export async function proposeCredential(
       connection_id: params.connection_id,
     };
 
-    await agent.issueCredentials.issueCredentialSendProposalPost(
-      agentRequest,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.issueV10Credentials.issueCredentialSendProposalPost({
+      body: agentRequest,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Propose credential: ${
@@ -167,9 +162,10 @@ export async function offerCredential(
   id: string, // Credential Exchange Record Id
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdSendOfferPost(
-      id,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdSendOfferPost(
+      {
+        credExId: id,
+      },
     );
   } catch (error) {
     throw await reportCloudAgentError(
@@ -184,8 +180,10 @@ export async function requestProposedCredential(
   id: string, // Credential Exchange Record Id
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdSendRequestPost(
-      id,
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdSendRequestPost(
+      {
+        credExId: id,
+      },
     );
   } catch (error) {
     throw await reportCloudAgentError(
@@ -198,13 +196,13 @@ export async function requestProposedCredential(
 export async function issueCredential(
   agent: CloudAgentAPI,
   id: string, // Credential Exchange Record Id
+  comment?: string, // Optional comment
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdIssuePost(
-      id,
-      undefined,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdIssuePost({
+      credExId: id,
+      body: { comment: comment },
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Issue requested Credential : ${id}`,
@@ -218,11 +216,9 @@ export async function storeCredential(
   id: string, // Credential Exchange Record Id
 ): Promise<void> {
   try {
-    await agent.issueCredentials.issueCredentialRecordsCredExIdStorePost(
-      id,
-      undefined,
-      agent.httpOptionOverrides.httpPostOptionOverrides,
-    );
+    await agent.issueV10Credentials.issueCredentialRecordsCredExIdStorePost({
+      credExId: id,
+    });
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Store Credential : ${id}`,
@@ -236,18 +232,21 @@ export async function fetchFilteredCredentialExchangeRecords(
   params: CredentialExchangeRecordFilterParams,
 ): Promise<V10CredentialExchange[]> {
   try {
-    const agentResult = await agent.issueCredentials.issueCredentialRecordsGet(
-      params.connection,
-      params.role,
-      undefined,
-      params.thread,
-    );
+    const agentResult =
+      await agent.issueV10Credentials.issueCredentialRecordsGet({
+        connectionId: params.connection,
+        role: params.role,
+        threadId: params.thread,
+      });
+
     const recordList = agentResult.results ?? [];
     const result = recordList.filter(
       (record) =>
         params.states === undefined ||
         (record.state !== undefined &&
-          params.states.includes(record.state as CredentialExchangeState)),
+          params.states.includes(
+            record.state as IssueCredentialRecordsGetStateEnum,
+          )),
     );
     return result;
   } catch (error) {
@@ -260,9 +259,9 @@ export async function fetchFilteredCredentialExchangeRecords(
 
 export async function fetchAllAgentOwnedCredentialDetails(
   agent: CloudAgentAPI,
-): Promise<CredBrief[]> {
+): Promise<IndyCredInfo[]> {
   try {
-    const agentResult = await agent.credentials.credentialsGet();
+    const agentResult = await agent.credentials.credentialsGet({});
     const result = agentResult.results ?? [];
 
     return result;

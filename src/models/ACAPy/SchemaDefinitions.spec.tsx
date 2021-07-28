@@ -8,15 +8,17 @@ import {
   TrustpingApi,
   SchemaApi,
   CredentialDefinitionApi,
-  IssueCredentialApi,
+  IssueCredentialV10Api,
+  IssueCredentialV20Api,
   RevocationApi,
   CredentialsApi,
-  PresentProofApi,
-  SchemaGetResults,
-  SchemaSendRequest,
-  SchemaSendResults,
-  SchemasCreatedResults,
+  PresentProofV10Api,
+  PresentProofV20Api,
   Schema,
+  SchemaGetResult,
+  TxnOrSchemaSendResult,
+  SchemasPostRequest,
+  SchemasCreatedResult,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 const mockContext: CloudAgentAPI = {
@@ -27,10 +29,12 @@ const mockContext: CloudAgentAPI = {
   ping: new TrustpingApi(),
   defineSchemas: new SchemaApi(),
   defineCredentials: new CredentialDefinitionApi(),
-  issueCredentials: new IssueCredentialApi(),
+  issueV10Credentials: new IssueCredentialV10Api(),
+  issueV20Credentials: new IssueCredentialV20Api(),
   revocations: new RevocationApi(),
   credentials: new CredentialsApi(),
-  proofs: new PresentProofApi(),
+  presentV10Proofs: new PresentProofV10Api(),
+  presentV20Proofs: new PresentProofV20Api(),
   httpOptionOverrides: {
     httpPostOptionOverrides: {},
   },
@@ -38,11 +42,11 @@ const mockContext: CloudAgentAPI = {
 
 // di-cloud-agent-sdk mock elements to allow
 // testing of the model-schema-definitions functionality.
-const mockSchemasCreatedGetResults: SchemasCreatedResults = {
+const mockSchemasCreatedGetResults: SchemasCreatedResult = {
   schema_ids: ['0', '1', '2'],
 };
 
-const mockSchemaDefinitionGetResults: SchemaGetResults[] = [
+const mockSchemaDefinitionGetResults: SchemaGetResult[] = [
   {
     schema: {
       name: 'SCHEMA_NAME_0',
@@ -82,26 +86,31 @@ const schemasCreatedGetResultsSpy = jest
 const schemaSchemasIdGetSpy = jest
   .spyOn(mockContext.defineSchemas, 'schemasSchemaIdGet')
   .mockImplementation(
-    async (schemaDefId: string) =>
-      mockSchemaDefinitionGetResults[parseInt(schemaDefId)],
+    async (request) =>
+      mockSchemaDefinitionGetResults[parseInt(request.schemaId)],
   );
 
 const schemaDefinitionsPostSpy = jest
   .spyOn(mockContext.defineSchemas, 'schemasPost')
   .mockImplementation(
-    async (schemaDefInfo?: SchemaSendRequest): Promise<SchemaSendResults> => {
-      const newSchemaDef: SchemaGetResults = {
+    async (request: SchemasPostRequest): Promise<TxnOrSchemaSendResult> => {
+      const newSchemaDef: SchemaGetResult = {
         schema: {
-          name: schemaDefInfo?.schema_name,
+          name: request.body?.schema_name,
           id: '3',
-          version: schemaDefInfo?.schema_version,
+          version: request.body?.schema_version,
           seqNo: 15,
           ver: '2.0',
-          attrNames: schemaDefInfo?.attributes,
+          attrNames: request.body?.attributes,
         },
       };
       mockSchemaDefinitionGetResults.push(newSchemaDef);
-      return { schema_id: newSchemaDef.schema?.id ?? '', schema: newSchemaDef };
+      return {
+        sent: {
+          schema_id: newSchemaDef.schema?.id ?? '',
+          schema: newSchemaDef.schema,
+        },
+      };
     },
   );
 
@@ -164,9 +173,10 @@ describe('model-schema-definitions', () => {
   });
 
   it('should get ALL schema details', async () => {
-    const result = await modelSchemaDefinitions.fetchAllAgentSchemaDefinitionDetails(
-      mockContext,
-    );
+    const result =
+      await modelSchemaDefinitions.fetchAllAgentSchemaDefinitionDetails(
+        mockContext,
+      );
     expect(schemasCreatedGetResultsSpy).toBeCalledTimes(1);
     expect(schemaSchemasIdGetSpy).toBeCalledTimes(3);
     expect(result).toEqual(expectedSchemaDefinitions);

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { consoleTableMixin } from '../../../components/table';
 import { theme } from '../../../theme';
 import { Button } from 'antd';
-import { DID } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { DID, DIDPostureEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 export const WriteToLedgerButton = styled(Button)`
   color: ${theme.colors.sudoBlue};
@@ -29,7 +29,7 @@ function makeColumns(opts: {
       dataIndex: 'posture',
       render(_, didInfo) {
         const status =
-          didInfo.posture === DID.PostureEnum.WalletOnly
+          didInfo.posture === DIDPostureEnum.WalletOnly
             ? 'Write to Ledger'
             : 'Written to Ledger';
         return (
@@ -40,7 +40,7 @@ function makeColumns(opts: {
             type="default"
             shape="round"
             onClick={() => opts.onWriteToLedger(didInfo)}
-            disabled={didInfo.posture !== DID.PostureEnum.WalletOnly}>
+            disabled={didInfo.posture !== DIDPostureEnum.WalletOnly}>
             {status}
           </WriteToLedgerButton>
         );
