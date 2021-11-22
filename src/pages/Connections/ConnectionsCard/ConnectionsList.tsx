@@ -61,6 +61,7 @@ export const ConnectionsList: React.FC<Props> = (props) => {
       },
       {
         title: 'Type',
+        width: '20%',
         dataIndex: 'invitation_mode',
         ...getColumnSearchProps('invitation_mode', searchState, setSearchState),
       },
@@ -77,6 +78,7 @@ export const ConnectionsList: React.FC<Props> = (props) => {
       },
       {
         key: 'remove',
+        width: '10%',
         title: <span style={{ visibility: 'hidden' }}>{'Remove'}</span>,
         align: 'right',
         render(_, connectionInfo) {

@@ -19,7 +19,6 @@ import {
 import { modalInfo, modalConfirm } from '../../../components/Form';
 import { VStack, HStack } from '../../../components/layout-stacks';
 import { AcceptInvitationForm } from './AcceptInvitationForm';
-import { useInterval } from '../../../utils/intervals';
 import {
   ConnRecord,
   InvitationResult,
@@ -93,17 +92,6 @@ export const ConnectionsCard: React.FC = () => {
   useEffect(() => {
     getConnectionsInfo();
   }, [getConnectionsInfo, modalState]);
-
-  // Slow poll for any connection state changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getConnectionsInfo();
-    }
-  }, 2000);
 
   const modalCreateInvitationCancelHandler = useCallback(() => {
     setModalState('closed');
@@ -210,7 +198,6 @@ export const ConnectionsCard: React.FC = () => {
           }
           extra={
             <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
               <Button
                 id="ConnectionsCard__create-btn"
                 type="primary"

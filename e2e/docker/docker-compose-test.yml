@@ -1,0 +1,37 @@
+# This docker compose file will setup the browser
+# test container and admin console webserver for e2e
+# testing once the di-env environment is up.
+#
+version: '3'
+services:
+  # A docker image that runs the selenium chrome browser server
+  browser-server:
+    image: ${BROWSER_SERVER_DOCKER_IMAGE:-selenium/standalone-chrome-debug}:${BROWSER_SERVER_DOCKER_TAG:-3.141.59}
+    container_name: ${BROWSER_SERVER_CONTAINER_NAME:-browser-server}
+    ports:
+      - ${BROWSER_SERVER_CONTROL_EXTERNAL_PORT:-4445}:${BROWSER_SERVER_CONTROL_INTERNAL_PORT:-4444}
+      - ${BROWSER_SERVER_VNC_EXTERNAL_PORT:-5900}:${BROWSER_SERVER_VNC_INTERNAL_PORT:-5900}
+    environment:
+      - SCREEN_WIDTH=1600
+      - SCREEN_HEIGHT=1200
+    networks:
+      - frontend
+    volumes:
+      - '/dev/shm:/dev/shm'
+
+  # An nginx webserver image to serve admin console application build
+  admin-webserver:
+    image: ${WEB_SERVER_DOCKER_IMAGE:-nginx}:${WEB_SERVER_DOCKER_TAG:-1.21.3-alpine}
+    container_name: ${WEB_SERVER_CONTAINER_NAME:-admin-webserver}
+    ports:
+      - ${WEB_SERVER_EXTERNAL_PORT:-3000}:${WEB_SERVER_INTERNAL_PORT:-80}
+    networks:
+      - frontend
+    volumes:
+      - ${BUILD_DIR:-./../../build}:/usr/share/nginx/html:ro
+      - ./nginx-default.conf:/etc/nginx/conf.d/default.conf
+networks:
+  # Externally defined di-env network that the cloud-agent is attached to.
+  frontend:
+    external: ${FRONTEND_EXTERNAL:-true}
+    name: ${FRONTEND_NETWORK:-frontend}

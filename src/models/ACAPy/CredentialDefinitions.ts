@@ -22,6 +22,9 @@ export type CredentialDefinitionCreateParams = {
   tag: string; // Human readable, descriptive tag for credential definition
   schema: SchemaDefinitionId; // Identifier assigned at schema create time
   revocable: boolean; // Revocation supported for issued credentials
+  size?: number; // The revocation registry size. Only for revocable credential definitions.
+  // This effectively sets the number of credentials that can
+  // be issued for this definition.
 };
 
 export async function fetchCredentialDefinitionIds(
@@ -48,7 +51,7 @@ export async function fetchCredentialDefinitionIds(
   } catch (error) {
     throw await reportCloudAgentError(
       `Credential Definition not found for issuerDID: ${issuerDid} schemaId: ${schemaId}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -64,12 +67,13 @@ export async function createCredentialDefinition(
         tag: params.tag,
         support_revocation: params.revocable,
         schema_id: params.schema,
+        revocation_registry_size: params.size,
       },
     });
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create Credential Definition on Ledger',
-      error,
+      error as Response,
     );
   }
 }
@@ -87,7 +91,7 @@ export async function fetchCredentialDefinitionDetails(
   } catch (error) {
     throw await reportCloudAgentError(
       `Credential Definition ${id} NOT FOUND on Ledger`,
-      error,
+      error as Response,
     );
   }
 }
@@ -104,7 +108,7 @@ export async function fetchAllAgentCredentialDefinitionIds(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Credential Identifiers from Cloud Agent',
-      error,
+      error as Response,
     );
   }
 }

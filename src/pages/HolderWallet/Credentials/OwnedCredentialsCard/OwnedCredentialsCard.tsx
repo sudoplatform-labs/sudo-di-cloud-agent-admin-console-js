@@ -1,6 +1,6 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { Popover, message } from 'antd';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { ConsoleCard } from '../../../../components/ConsoleCard';
@@ -12,8 +12,6 @@ import {
   fetchAllAgentOwnedCredentialDetails,
   deleteCredential,
 } from '../../../../models/ACAPy/CredentialIssuance';
-import { HStack } from '../../../../components/layout-stacks';
-import { useInterval } from '../../../../utils/intervals';
 import { IndyCredInfo } from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
@@ -71,17 +69,6 @@ export const OwnedCredentialsCard: React.FC = () => {
     getOwnedCredentialsInfo();
   }, [getOwnedCredentialsInfo]);
 
-  // Slow poll for any owned credential state changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getOwnedCredentialsInfo();
-    }
-  }, 2000);
-
   const deleteCredentialHandler = useCallback(
     async (credentialId: string) => {
       try {
@@ -117,11 +104,6 @@ export const OwnedCredentialsCard: React.FC = () => {
             <span>
               Owned Credentials <CredentialsIconPopover />
             </span>
-          }
-          extra={
-            <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
-            </HStack>
           }>
           {credentialsData}
         </ConsoleCard>

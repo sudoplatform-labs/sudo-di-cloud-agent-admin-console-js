@@ -8,7 +8,13 @@ import {
   DangerLink,
   ActionHandler,
 } from '../table';
-import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
+import {
+  PlusSquareOutlined,
+  MinusSquareOutlined,
+  WarningTwoTone,
+  LikeTwoTone,
+  DislikeTwoTone,
+} from '@ant-design/icons';
 import { VStack } from '../layout-stacks';
 import { Heading } from '../charts';
 import {
@@ -17,6 +23,8 @@ import {
 } from '../../models/ACAPy/ProofPresentation';
 import { modalDanger } from '../Form';
 import { convertAriesDateToLocal } from '../../utils/ariesDate';
+import { PresentProofRecordsGetRoleEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { theme } from '../../theme';
 
 const CompletedProofsInfoTable = Table as React.FC<
   TableProps<PresentationExchangeData>
@@ -36,11 +44,12 @@ const StyledConsoleTable = styled(CompletedProofsInfoTable)`
 interface Props {
   dataSource: PresentationExchangeData[];
   loading?: boolean;
+  role: PresentProofRecordsGetRoleEnum;
   onDelete: ActionHandler;
 }
 
 export const CompletedProofsList: React.FC<Props> = (props) => {
-  const { dataSource, loading, onDelete: doRemove } = props;
+  const { dataSource, loading, role, onDelete: doRemove } = props;
 
   const [searchState, setSearchState] = useState<SearchState>({
     searchText: '',
@@ -48,19 +57,43 @@ export const CompletedProofsList: React.FC<Props> = (props) => {
   });
 
   const makeColumns = (opts: {
+    role: PresentProofRecordsGetRoleEnum;
     onRemove: ActionHandler;
   }): ColumnProps<PresentationExchangeData>[] => {
-    return [
-      {
-        title: 'Thread',
-        dataIndex: ['record', 'thread_id'],
+    let proofResult: ColumnProps<PresentationExchangeData>;
+    if (role === 'verifier') {
+      // Only the verifier ever knows the success of the
+      // proof verification process.
+      proofResult = {
+        title: 'Status',
+        width: '10%',
+        align: 'center',
+        render(_, proofInfo) {
+          if (proofInfo.record.verified !== undefined) {
+            if (proofInfo.record.verified === 'true') {
+              return <LikeTwoTone twoToneColor={theme.colors.darkMint} />;
+            } else {
+              return <DislikeTwoTone twoToneColor={theme.colors.coral} />;
+            }
+          } else {
+            return <WarningTwoTone twoToneColor={theme.colors.sunShade} />;
+          }
+        },
+      };
+    } else {
+      proofResult = {
+        title: 'State',
+        dataIndex: ['record', 'state'],
         ellipsis: true,
         ...getColumnSearchProps(
-          ['record', 'thread_id'],
+          ['record', 'state'],
           searchState,
           setSearchState,
         ),
-      },
+      };
+    }
+
+    return [
       {
         title: 'Connection',
         dataIndex: ['connection', 'alias'],
@@ -71,12 +104,13 @@ export const CompletedProofsList: React.FC<Props> = (props) => {
           setSearchState,
         ),
       },
+      proofResult,
       {
-        title: 'State',
-        dataIndex: ['record', 'state'],
+        title: 'Thread',
+        dataIndex: ['record', 'thread_id'],
         ellipsis: true,
         ...getColumnSearchProps(
-          ['record', 'state'],
+          ['record', 'thread_id'],
           searchState,
           setSearchState,
         ),
@@ -93,6 +127,7 @@ export const CompletedProofsList: React.FC<Props> = (props) => {
       },
       {
         key: 'remove',
+        width: '10%',
         title: <span style={{ visibility: 'hidden' }}>{'Remove'}</span>,
         align: 'right',
         render(_, proofInfo) {
@@ -128,6 +163,7 @@ export const CompletedProofsList: React.FC<Props> = (props) => {
   );
 
   const columns = makeColumns({
+    role: role,
     onRemove: removeButtonHandler,
   });
 

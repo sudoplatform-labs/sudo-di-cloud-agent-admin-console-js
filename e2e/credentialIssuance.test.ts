@@ -9,7 +9,10 @@ import {
   e2eWaitElementVisible,
 } from './commonHelpers';
 import { e2eAcceptInvitation, e2eCreateInvitation } from './connectionHelpers';
-import { e2eCreateCredentialDefinition } from './credentialDefinitionHelpers';
+import {
+  e2eCreateCredentialDefinition,
+  e2eGetCredentialDefinitionId,
+} from './credentialDefinitionHelpers';
 import {
   e2eNavigateToRequestedCredentialsCard,
   e2eNavigateToOwnedCredentialsCard,
@@ -19,10 +22,7 @@ import {
   ciWaitDefault,
   e2eSendCredentialProposal,
 } from './credentialIssuanceHelpers';
-import {
-  e2eCreateSchemaDefinition,
-  e2eGetSchemaId,
-} from './schemaDefinitionHelpers';
+import { e2eCreateSchemaDefinition } from './schemaDefinitionHelpers';
 import { driver } from './setup-tests';
 
 describe('Credential Issuance', function () {
@@ -78,29 +78,36 @@ describe('Credential Issuance', function () {
     await e2eAcceptInvitation('CI Issuer', invitationText);
 
     const schemaId = await e2eCreateSchemaDefinition(
-      'CI-0101 Test Schema',
+      'CI-0101_Test_Schema',
       '1.0',
       ['firstName', 'lastName', 'someCredentialValue'],
     );
 
-    await e2eCreateCredentialDefinition(
-      'CI-0101 Test Credential Definition',
+    const credentialDefinitionId = await e2eCreateCredentialDefinition(
+      'CI-0101_Test_Credential_Definition',
       schemaId,
     );
 
-    await e2eObtainCredential(schemaId, 'CI-0101 Test Message', 'CI Issuer', [
-      { name: 'firstName', value: 'CI-0101 firstName' },
-      { name: 'lastName', value: 'CI-0101 lastName' },
-      { name: 'someCredentialValue', value: 'CI-0101 someCredentialValue' },
-    ]);
+    await e2eObtainCredential(
+      credentialDefinitionId,
+      'CI-0101 Test Message',
+      'CI Issuer',
+      [
+        { name: 'firstName', value: 'CI-0101 firstName' },
+        { name: 'lastName', value: 'CI-0101 lastName' },
+        { name: 'someCredentialValue', value: 'CI-0101 someCredentialValue' },
+      ],
+    );
   });
 
   it('CI-0102 Remove in progress credential from wallet and issuer', async function () {
     // Reuse the CI-0101 schema and credential definitions
-    const schemaId = await e2eGetSchemaId('CI-0101 Test Schema');
+    const credentialDefinitionId = await e2eGetCredentialDefinitionId(
+      'CI-0101_Test_Credential_Definition',
+    );
 
-    const credentialThread = await e2eSendCredentialProposal(
-      schemaId,
+    await e2eSendCredentialProposal(
+      credentialDefinitionId,
       'CI-0102 Test Message',
       'CI Issuer',
       [
@@ -116,10 +123,13 @@ describe('Credential Issuance', function () {
     //       so that if an in-progress request is deleted by the Holder it is
     //       automatically removed from the Issuer.
     await e2eNavigateToRequestedCredentialsCard();
-    await e2eCheckTableDataPresent('CredentialRequestsList', credentialThread);
+    await e2eCheckTableDataPresent(
+      'CredentialRequestsList',
+      credentialDefinitionId,
+    );
     await e2eExecuteTableRowDropdownAction(
       'CredentialRequestsList',
-      credentialThread,
+      credentialDefinitionId,
       'Actions',
       'Cancel Request',
       'Abort',
@@ -127,39 +137,44 @@ describe('Credential Issuance', function () {
     );
     await e2eCheckTableDataNotPresent(
       'CredentialRequestsList',
-      credentialThread,
+      credentialDefinitionId,
     );
 
     await e2eNavigateToActiveCredentialRequestsCard();
     await e2eCheckTableDataNotPresent(
-      'CredentialRequestsList',
-      credentialThread,
+      'ActiveCredentialRequestsList',
+      credentialDefinitionId,
     );
   });
 
   it('CI-0103 Remove completed credential from wallet and issuer', async function () {
     // Walk through stages to obtain credential from Issuer
     const schemaId = await e2eCreateSchemaDefinition(
-      'CI-0103 Test Schema',
+      'CI-0103_Test_Schema',
       '1.0',
       ['firstName', 'lastName', 'someCredentialValue'],
     );
 
-    await e2eCreateCredentialDefinition(
-      'CI-0103 Test Credential Definition',
+    const credentialDefinitionId = await e2eCreateCredentialDefinition(
+      'CI-0103_Test_Credential_Definition',
       schemaId,
     );
 
-    await e2eObtainCredential(schemaId, 'CI-0103 Test Message', 'CI Issuer', [
-      { name: 'firstName', value: 'CI-0103 firstName' },
-      { name: 'lastName', value: 'CI-0103 lastName' },
-      { name: 'someCredentialValue', value: 'CI-0103 someCredentialValue' },
-    ]);
+    await e2eObtainCredential(
+      credentialDefinitionId,
+      'CI-0103 Test Message',
+      'CI Issuer',
+      [
+        { name: 'firstName', value: 'CI-0103 firstName' },
+        { name: 'lastName', value: 'CI-0103 lastName' },
+        { name: 'someCredentialValue', value: 'CI-0103 someCredentialValue' },
+      ],
+    );
     // Delete new credential from wallet
     await e2eNavigateToOwnedCredentialsCard();
     await e2eExecuteTableRowRemoveAction(
       'OwnedCredentialsList',
-      'CI-0103 Test Credential Definition',
+      'CI-0103_Test_Credential_Definition',
       'Remove',
       'Remove Credential',
       'Confirm',
@@ -168,13 +183,12 @@ describe('Credential Issuance', function () {
     );
 
     await e2eNavigateToIssuedCredentialsCard();
-    await e2eExecuteTableRowRemoveAction(
+    await e2eExecuteTableRowDropdownAction(
       'IssuedCredentialsList',
-      'CI-0103 Test Credential Definition',
+      'CI-0103_Test_Credential_Definition',
+      'Actions',
       'Remove',
-      'Remove Completed Credential Issuance Record',
       'Confirm',
-      'Cancel',
       'Credential Exchange Record deleted',
     );
   });

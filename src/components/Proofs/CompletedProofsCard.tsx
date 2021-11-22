@@ -1,13 +1,12 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { message, Popover } from 'antd';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { ConsoleCard } from '../../components/ConsoleCard';
 import { CardsCol, CardsRow } from '../../components/NavLayout';
 import { theme } from '../../theme';
 import { AppContext } from '../../containers/App';
-import { useInterval } from '../../utils/intervals';
 import {
   deleteProofExchange,
   fetchFilteredProofExchangeRecords,
@@ -15,8 +14,10 @@ import {
 } from '../../models/ACAPy/ProofPresentation';
 import { CompletedProofsList } from '../../components/Proofs/CompletedProofsList';
 import { fetchAllAgentConnectionDetails } from '../../models/ACAPy/Connections';
-import { HStack } from '../layout-stacks';
-import { PresentProofRecordsGetRoleEnum, PresentProofRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import {
+  PresentProofRecordsGetRoleEnum,
+  PresentProofRecordsGetStateEnum,
+} from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Props define the agent role for this card instance
@@ -69,7 +70,10 @@ export const CompletedProofsCard: React.FC<Props> = (props) => {
       cloudAgentAPIs,
       {
         role: role,
-        states: [ PresentProofRecordsGetStateEnum.Verified, PresentProofRecordsGetStateEnum.PresentationAcked ],
+        states: [
+          PresentProofRecordsGetStateEnum.Verified,
+          PresentProofRecordsGetStateEnum.PresentationAcked,
+        ],
       },
     );
     const connections = await fetchAllAgentConnectionDetails(cloudAgentAPIs);
@@ -91,17 +95,6 @@ export const CompletedProofsCard: React.FC<Props> = (props) => {
   useEffect(() => {
     getProofsCompletedInfo();
   }, [getProofsCompletedInfo]);
-
-  // Slow poll for any proof table changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getProofsCompletedInfo();
-    }
-  }, 2000);
 
   const deleteProofPresentationHandler = useCallback(
     async (presentationId: string) => {
@@ -126,6 +119,7 @@ export const CompletedProofsCard: React.FC<Props> = (props) => {
       <CompletedProofsList
         dataSource={proofsCompleted ?? []}
         loading={infoLoading}
+        role={role}
         onDelete={deleteProofPresentationHandler}
       />
     );
@@ -140,11 +134,6 @@ export const CompletedProofsCard: React.FC<Props> = (props) => {
             <span>
               Completed Proof Presentations <CompletedProofsIconPopover />
             </span>
-          }
-          extra={
-            <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
-            </HStack>
           }>
           {proofsData}
         </ConsoleCard>

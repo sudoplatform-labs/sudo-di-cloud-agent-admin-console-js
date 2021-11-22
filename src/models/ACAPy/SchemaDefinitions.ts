@@ -43,7 +43,7 @@ export async function createSchemaDefinition(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create Schema on Ledger',
-      error,
+      error as Response,
     );
   }
 }
@@ -66,7 +66,7 @@ export async function fetchSchemaDefinitionIds(
   } catch (error) {
     throw await reportCloudAgentError(
       `Schema not found for creatorDID: ${did} schemaName: ${name} schemaVersion: ${version}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -85,7 +85,7 @@ export async function fetchSchemaDefinitionDetails(
   } catch (error) {
     throw await reportCloudAgentError(
       `Schema ${id} NOT FOUND on Ledger`,
-      error,
+      error as Response,
     );
   }
 }
@@ -100,7 +100,7 @@ export async function fetchAllAgentSchemaDefinitionIds(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Defined Schema Identifiers from Cloud Agent',
-      error,
+      error as Response,
     );
   }
 }

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Alert, Button, Switch, message } from 'antd';
 import { Store } from 'rc-field-form/lib/interface';
-import { useAsync, useAsyncFn } from 'react-use';
+import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { CloudAgentAPI } from '../../../../containers/App';
 import { fetchSchemaDefinitionDetails } from '../../../../models/ACAPy/SchemaDefinitions';
@@ -11,12 +11,15 @@ import {
 } from './RequestProofAttributeList';
 import { sendProofRequest } from '../../../../models/ACAPy/ProofPresentation';
 import { DIDCommSelectionItem } from '../../../../components/Form/DIDCommSelectionItem';
-import { IndySchemaIdEntryItem } from '../../../../components/Form/IndySchemaIdEntryItem';
 import {
+  CredentialDefinition,
   IndyProofReqAttrSpec,
   Schema,
   V10PresentationSendRequestRequest,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { IndyCredentialDefinitionIdEntryItem } from '../../../../components/Form/IndyCredentialDefinitionIdEntryItem';
+import { fetchCredentialDefinitionDetails } from '../../../../models/ACAPy/CredentialDefinitions';
+import _ from 'lodash';
 
 const FooterContainer = styled.div`
   display: flex;
@@ -42,11 +45,12 @@ interface Props {
 export const RequestProofForm: React.FC<Props> = (props) => {
   const { onCancel, onSuccess, cloudAgentAPIs } = props;
   const [form] = Form.useForm();
-  // Track the current Schema Definition Id so
+  // Track the current Credential Definition Id so
   // that we can get the correct schema when it changes. Also use
   // state to track all the currently selected attributes for the
   // proof.
-  const [currentSchemaId, setCurrentSchemaId] = useState('');
+  const [currentCredentialDefinitionId, setCurrentCredentialDefinitionId] =
+    useState('');
   const [currentProofAttributes, setCurrentProofAttributes] = useState<
     RequestProofSchemaAttribute[]
   >([]);
@@ -58,9 +62,8 @@ export const RequestProofForm: React.FC<Props> = (props) => {
         return undefined;
       }
 
-      const checkedAttributes: RequestProofSchemaAttribute[] = currentProofAttributes.filter(
-        (attribute) => attribute.included,
-      );
+      const checkedAttributes: RequestProofSchemaAttribute[] =
+        currentProofAttributes.filter((attribute) => attribute.included);
 
       const requestAttributes: { [key: string]: IndyProofReqAttrSpec } = {};
       for (const attribute of checkedAttributes) {
@@ -69,8 +72,14 @@ export const RequestProofForm: React.FC<Props> = (props) => {
           // At the moment we are hard coding the restriction type to
           // the issuer DID.  This is an area where a LOT of UX input
           // is needed due to the flexibility possible in the restrictions
-          restrictions: [{ issuer_did: attribute.issuerDID }],
+          restrictions: [{ cred_def_id: attribute.credentialDefId }],
         };
+        if (attribute.nonRevokedWindow) {
+          requestAttributes[attribute.name].non_revoked = {
+            from: attribute.nonRevokedWindow.validTimeStart,
+            to: attribute.nonRevokedWindow.validTimeEnd,
+          };
+        }
       }
 
       const proofRequest: V10PresentationSendRequestRequest = {
@@ -89,11 +98,17 @@ export const RequestProofForm: React.FC<Props> = (props) => {
       await sendProofRequest(cloudAgentAPIs, proofRequest);
       message.success('Proof request sent!');
       form.resetFields();
-      setCurrentSchemaId('');
+      setCurrentCredentialDefinitionId('');
       setCurrentProofAttributes([]);
       onSuccess();
     },
-    [cloudAgentAPIs, currentProofAttributes, currentSchemaId, form, onSuccess],
+    [
+      cloudAgentAPIs,
+      currentProofAttributes,
+      currentCredentialDefinitionId,
+      form,
+      onSuccess,
+    ],
   );
 
   const changeProofAttribute = (
@@ -108,36 +123,77 @@ export const RequestProofForm: React.FC<Props> = (props) => {
     );
   };
 
-  const buildCurrentProofAttributes = (schema: Schema): void => {
-    // Pull out the DID from the schemaId and default that
-    // as the issuer restriction for all attributes being requested
-    const matches = schema.id?.match(
-      /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{21,22}/,
-    );
-    let defaultDID = 'Unknown';
-    if (matches) {
-      defaultDID = matches[0];
-    }
+  const buildDefaultProofAttributes = (
+    schema: Schema,
+    credentialDefinition: CredentialDefinition,
+  ): void => {
     let proofAttributes: RequestProofSchemaAttribute[] = [];
     if (schema.attrNames) {
       proofAttributes = schema.attrNames?.map((attribute) => {
-        return { name: attribute, issuerDID: defaultDID, included: true };
+        const attributeResult: RequestProofSchemaAttribute = {
+          name: attribute,
+          credentialDefId: credentialDefinition.id ?? '',
+          included: true,
+        };
+        // Don't set a time window if its a non-revocable credential
+        // definition.
+        if (credentialDefinition.value?.revocation !== undefined) {
+          attributeResult.nonRevokedWindow = {
+            // Revokation times only resolve to seconds not
+            // milliseconds
+            validTimeStart: Math.floor(Date.now() / 1000),
+            validTimeEnd: Math.floor(Date.now() / 1000),
+          };
+        }
+        return attributeResult;
       });
     }
     setCurrentProofAttributes(proofAttributes);
   };
 
-  useAsync(async () => {
-    // Don't attempt to fetch an empty schemaId
-    if (currentSchemaId === '') {
+  const [, updateSchema] = useAsyncFn(async () => {
+    // Don't attempt to fetch an empty credentialId
+    // (i.e. on initial render)
+    if (currentCredentialDefinitionId === '') {
       return;
     }
-    const schema = await fetchSchemaDefinitionDetails(
-      cloudAgentAPIs,
-      currentSchemaId,
-    );
-    buildCurrentProofAttributes(schema);
-  }, [currentSchemaId]);
+    // Attempt to get the credential definition first
+    try {
+      const credentialDefinition = await fetchCredentialDefinitionDetails(
+        cloudAgentAPIs,
+        currentCredentialDefinitionId,
+      );
+      if (_.isEmpty(credentialDefinition)) {
+        setCurrentProofAttributes([]);
+      } else {
+        // Pull the schema sequence number from the credential
+        // identifier and fetch the schema definition to determine
+        // attributes available.
+        const credentialDefinitionIdReg =
+          /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{21,22}):3:CL:(([1-9][0-9]*)|([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{21,22}:2:.+:[0-9.]+)):(.+)$/;
+        const matches = currentCredentialDefinitionId.match(
+          credentialDefinitionIdReg,
+        );
+        if (matches) {
+          const currentSchemaId = matches[3];
+          const schema = await fetchSchemaDefinitionDetails(
+            cloudAgentAPIs,
+            currentSchemaId,
+          );
+          buildDefaultProofAttributes(schema, credentialDefinition);
+        }
+      }
+    } catch (e) {
+      setCurrentProofAttributes([]);
+    }
+  }, [cloudAgentAPIs, currentCredentialDefinitionId]);
+
+  // Don't thrash around getting credential definitions on every
+  // typed character if possible.
+  useEffect(() => {
+    const timeOutId = setTimeout(() => updateSchema(), 500);
+    return () => clearTimeout(timeOutId);
+  }, [updateSchema]);
 
   return (
     <Form
@@ -162,12 +218,18 @@ export const RequestProofForm: React.FC<Props> = (props) => {
           placeholder="e.g. Type of proof required or reason for request"
         />
       </Form.Item>
-      <IndySchemaIdEntryItem name="schemaId" setSchemaId={setCurrentSchemaId} />
-      {currentSchemaId !== '' && (
+      <IndyCredentialDefinitionIdEntryItem
+        name="credentialDefinitionId"
+        setCredentialDefinitionId={setCurrentCredentialDefinitionId}
+      />
+      {currentProofAttributes.length !== 0 && (
         <Form.Item label="Select desired Attributes for Proof:">
           <RequestProofAttributeList
             dataSource={currentProofAttributes}
-            doCheckChange={changeProofAttribute}></RequestProofAttributeList>
+            doCheckChange={changeProofAttribute}
+            doTimeWindowChange={
+              changeProofAttribute
+            }></RequestProofAttributeList>
         </Form.Item>
       )}
       <Form.Item
@@ -190,7 +252,6 @@ export const RequestProofForm: React.FC<Props> = (props) => {
           onClick={() => {
             submitState.error = undefined;
             form.resetFields();
-            setCurrentSchemaId('');
             setCurrentProofAttributes([]);
             onCancel();
           }}

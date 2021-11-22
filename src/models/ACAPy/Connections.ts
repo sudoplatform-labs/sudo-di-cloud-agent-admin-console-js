@@ -71,7 +71,7 @@ export async function createConnectionInvite(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create a connection invitation',
-      error,
+      error as Response,
     );
   }
 }
@@ -88,7 +88,10 @@ export async function acceptConnectionInvite(
       body: params.invitation,
     });
   } catch (error) {
-    throw await reportCloudAgentError('Failed to Accept invitation', error);
+    throw await reportCloudAgentError(
+      'Failed to Accept invitation',
+      error as Response,
+    );
   }
 }
 
@@ -101,7 +104,7 @@ export async function deleteConnection(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete connection: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -118,7 +121,7 @@ export async function trustPingConnection(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Ping connection: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -134,7 +137,7 @@ export async function fetchAllAgentConnectionDetails(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Connection List from Wallet',
-      error,
+      error as Response,
     );
   }
 }

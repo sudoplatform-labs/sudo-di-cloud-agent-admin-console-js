@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState, useEffect } from 'react';
 import { Form, Input, Alert, Button, Switch, message } from 'antd';
 import { Store } from 'rc-field-form/lib/interface';
 import { useAsyncFn } from 'react-use';
@@ -15,7 +15,9 @@ import {
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { fetchSchemaDefinitionDetails } from '../../../../models/ACAPy/SchemaDefinitions';
 import { DIDCommSelectionItem } from '../../../../components/Form/DIDCommSelectionItem';
-import { IndySchemaIdEntryItem } from '../../../../components/Form/IndySchemaIdEntryItem';
+import { IndyCredentialDefinitionIdEntryItem } from '../../../../components/Form/IndyCredentialDefinitionIdEntryItem';
+import { fetchCredentialDefinitionDetails } from '../../../../models/ACAPy/CredentialDefinitions';
+import _ from 'lodash';
 
 const FooterContainer = styled.div`
   display: flex;
@@ -41,9 +43,11 @@ interface Props {
 export const ProposeCredentialForm: React.FC<Props> = (props) => {
   const { onCancel, onSuccess, cloudAgentAPIs } = props;
   const [form] = Form.useForm();
-  // Track the current schemaId state so that we can get the
+  // Track the current credentialDefinitionId state so that we can get the
   // correct definition when it changes
-  const [currentSchemaId, setCurrentSchemaId] = useState('');
+  const [currentCredentialDefinitionId, setCurrentCredentialDefinitionId] =
+    useState('');
+  const [currentSchema, setCurrentSchema] = useState<Schema>();
 
   const [submitState, handleSubmit] = useAsyncFn(
     async (values?: Store) => {
@@ -65,7 +69,7 @@ export const ProposeCredentialForm: React.FC<Props> = (props) => {
       const preview: CredentialPreview = { attributes: attributes };
 
       const params: CredentialRequestParams = {
-        schema_id: values.schemaId,
+        credential_definition_id: values.credentialDefinitionId,
         connection_id: values.connectionId,
         comment: values.message,
         proposal: preview,
@@ -76,28 +80,55 @@ export const ProposeCredentialForm: React.FC<Props> = (props) => {
       await proposeCredential(cloudAgentAPIs, params);
       message.success('Credential proposal sent!');
       form.resetFields();
-      setCurrentSchemaId('');
+      setCurrentCredentialDefinitionId('');
       onSuccess();
     },
-    [cloudAgentAPIs, currentSchemaId, form, onSuccess],
+    [cloudAgentAPIs, currentCredentialDefinitionId, form, onSuccess],
   );
 
-  const [
-    { value: currentSchema },
-    getSchemaInfo,
-  ] = useAsyncFn(async (): Promise<Schema> => {
-    return await fetchSchemaDefinitionDetails(cloudAgentAPIs, currentSchemaId);
-  }, [cloudAgentAPIs, currentSchemaId]);
-
-  // Have to useEffect to make sure currentSchemaId state is updated before
-  // attempting to use it to get schema.
-  useEffect(() => {
-    if (currentSchemaId !== '') {
-      getSchemaInfo();
+  const [, updateSchema] = useAsyncFn(async () => {
+    // Don't attempt to fetch an empty credentialId
+    // (i.e. on initial render)
+    if (currentCredentialDefinitionId === '') {
+      return;
     }
-  }, [currentSchemaId, getSchemaInfo]);
+    // Attempt to get the credential definition first
+    try {
+      const credentialDefinition = await fetchCredentialDefinitionDetails(
+        cloudAgentAPIs,
+        currentCredentialDefinitionId,
+      );
+      if (_.isEmpty(credentialDefinition)) {
+        setCurrentSchema(undefined);
+      } else {
+        // Pull the schema sequence number from the credential
+        // identifier and fetch the schema definition to determine
+        // attributes available.
+        const credentialDefinitionIdReg =
+          /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{21,22}):3:CL:(([1-9][0-9]*)|([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{21,22}:2:.+:[0-9.]+)):(.+)$/;
+        const matches = currentCredentialDefinitionId.match(
+          credentialDefinitionIdReg,
+        );
+        if (matches) {
+          const currentSchemaId = matches[3];
+          setCurrentSchema(
+            await fetchSchemaDefinitionDetails(cloudAgentAPIs, currentSchemaId),
+          );
+        }
+      }
+    } catch (e) {
+      setCurrentSchema(undefined);
+    }
+  }, [cloudAgentAPIs, currentCredentialDefinitionId]);
 
-  const getCurrentSchemaFields = (): ReactElement[] => {
+  // Don't thrash around getting credential definitions on every
+  // typed character if possible.
+  useEffect(() => {
+    const timeOutId = setTimeout(() => updateSchema(), 500);
+    return () => clearTimeout(timeOutId);
+  }, [updateSchema]);
+
+  const buildCurrentSchemaFields = (): ReactElement[] => {
     if (currentSchema?.attrNames) {
       return currentSchema.attrNames
         .sort((a, b) => ('' + a).localeCompare(b))
@@ -145,10 +176,13 @@ export const ProposeCredentialForm: React.FC<Props> = (props) => {
           placeholder="e.g. Please provide me with a University Transcript"
         />
       </Form.Item>
-      <IndySchemaIdEntryItem name="schemaId" setSchemaId={setCurrentSchemaId} />
-      {currentSchemaId !== '' && (
+      <IndyCredentialDefinitionIdEntryItem
+        name="credentialDefinitionId"
+        setCredentialDefinitionId={setCurrentCredentialDefinitionId}
+      />
+      {currentSchema !== undefined && (
         <Form.Item label="Enter desired values for Credential Attributes:">
-          {getCurrentSchemaFields()}
+          {buildCurrentSchemaFields()}
         </Form.Item>
       )}
       <Form.Item
@@ -171,7 +205,7 @@ export const ProposeCredentialForm: React.FC<Props> = (props) => {
           onClick={() => {
             submitState.error = undefined;
             form.resetFields();
-            setCurrentSchemaId('');
+            setCurrentCredentialDefinitionId('');
             onCancel();
           }}
           type="default"

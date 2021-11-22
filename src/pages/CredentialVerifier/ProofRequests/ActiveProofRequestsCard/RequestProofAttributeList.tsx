@@ -1,12 +1,20 @@
-import { Checkbox } from 'antd';
+import { Checkbox, DatePicker } from 'antd';
 import Table, { ColumnProps, TableProps } from 'antd/lib/table';
 import React from 'react';
 import styled from 'styled-components';
 import { consoleTableMixin } from '../../../../components/table';
 
+const { RangePicker } = DatePicker;
+
+export type RequestProofAttributeTimeWindow = {
+  validTimeStart: number;
+  validTimeEnd: number;
+};
+
 export type RequestProofSchemaAttribute = {
   name: string;
-  issuerDID: string;
+  credentialDefId: string;
+  nonRevokedWindow?: RequestProofAttributeTimeWindow;
   included: boolean;
 };
 
@@ -29,13 +37,15 @@ interface Props {
   dataSource: RequestProofSchemaAttribute[];
   loading?: boolean;
   doCheckChange: (attribute: RequestProofSchemaAttribute) => void;
+  doTimeWindowChange: (attribute: RequestProofSchemaAttribute) => void;
 }
 
 export const RequestProofAttributeList: React.FC<Props> = (props) => {
-  const { dataSource, loading, doCheckChange } = props;
+  const { dataSource, loading, doCheckChange, doTimeWindowChange } = props;
 
   const makeColumns = (opts: {
     onCheckedChange: (attribute: RequestProofSchemaAttribute) => void;
+    onTimeWindowChange: (attribute: RequestProofSchemaAttribute) => void;
   }): ColumnProps<RequestProofSchemaAttribute>[] => {
     return [
       {
@@ -48,10 +58,38 @@ export const RequestProofAttributeList: React.FC<Props> = (props) => {
         ellipsis: true,
       },
       {
-        key: 'issuerDID',
-        title: 'Issuer DID',
-        dataIndex: 'issuerDID',
-        ellipsis: true,
+        key: 'validWindow',
+        title: 'Not Revoked',
+        dataIndex: 'validWindow',
+        render(_, attributeInfo) {
+          const rangeId = `RequestProofAttributeList__${attributeInfo.name}_ValidTimeWindow`;
+          const dropdownId = `RequestProofAttributeList__${attributeInfo.name}_DatePicker`;
+          return (
+            <RangePicker
+              showTime
+              disabled={attributeInfo.nonRevokedWindow === undefined}
+              use12Hours={false}
+              format="YYYY-MM-DD HH:mm:ss"
+              className={rangeId}
+              dropdownClassName={dropdownId}
+              disabledDate={(date) => {
+                return date && date.valueOf() > Date.now();
+              }}
+              onOk={(e) => {
+                const newAttribute = attributeInfo;
+                newAttribute.nonRevokedWindow = {
+                  validTimeStart: Math.floor(
+                    (e?.[0]?.toDate().getTime() ?? Date.now()) / 1000,
+                  ),
+                  validTimeEnd: Math.floor(
+                    (e?.[1]?.toDate().getTime() ?? Date.now()) / 1000,
+                  ),
+                };
+                opts.onTimeWindowChange(newAttribute);
+              }}
+            />
+          );
+        },
       },
       {
         key: 'included',
@@ -77,6 +115,7 @@ export const RequestProofAttributeList: React.FC<Props> = (props) => {
 
   const columns = makeColumns({
     onCheckedChange: doCheckChange,
+    onTimeWindowChange: doTimeWindowChange,
   });
 
   return (

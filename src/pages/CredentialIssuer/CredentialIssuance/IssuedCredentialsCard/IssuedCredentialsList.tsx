@@ -5,8 +5,8 @@ import {
   consoleTableMixin,
   SearchState,
   getColumnSearchProps,
-  DangerLink,
   ActionHandler,
+  ActionLink,
 } from '../../../../components/table';
 import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import { VStack } from '../../../../components/layout-stacks';
@@ -17,6 +17,9 @@ import {
 } from '../../../../models/ACAPy/CredentialIssuance';
 import { modalDanger } from '../../../../components/Form';
 import { convertAriesDateToLocal } from '../../../../utils/ariesDate';
+import { Dropdown } from 'antd';
+import { IssuerCredentialStatusIcon } from './IssuerCredentialStatusIcon';
+import { IssuedCredentialActionMenu } from './IssuedCredentialActionMenu';
 
 const IssuedCredentialsInfoTable = Table as React.FC<
   TableProps<CredentialExchangeData>
@@ -36,11 +39,12 @@ const StyledConsoleTable = styled(IssuedCredentialsInfoTable)`
 interface Props {
   dataSource: CredentialExchangeData[];
   loading?: boolean;
-  onDelete: ActionHandler;
+  doDelete: (credentialExchangeId: string) => void;
+  doRevoke: (credentialExchangeId: string) => void;
 }
 
 export const IssuedCredentialsList: React.FC<Props> = (props) => {
-  const { dataSource, loading, onDelete: doRemove } = props;
+  const { dataSource, loading, doDelete, doRevoke } = props;
 
   const [searchState, setSearchState] = useState<SearchState>({
     searchText: '',
@@ -49,18 +53,9 @@ export const IssuedCredentialsList: React.FC<Props> = (props) => {
 
   const makeColumns = (opts: {
     onRemove: ActionHandler;
+    onRevoke: ActionHandler;
   }): ColumnProps<CredentialExchangeData>[] => {
     return [
-      {
-        title: 'Thread',
-        dataIndex: ['record', 'thread_id'],
-        ellipsis: true,
-        ...getColumnSearchProps(
-          ['record', 'thread_id'],
-          searchState,
-          setSearchState,
-        ),
-      },
       {
         title: 'Credential Type',
         dataIndex: ['record', 'credential_definition_id'],
@@ -81,14 +76,16 @@ export const IssuedCredentialsList: React.FC<Props> = (props) => {
         ),
       },
       {
-        title: 'State',
-        dataIndex: ['record', 'state'],
-        ellipsis: true,
-        ...getColumnSearchProps(
-          ['record', 'state'],
-          searchState,
-          setSearchState,
-        ),
+        title: 'Status',
+        width: '10%',
+        align: 'center',
+        render(_, credentialInfo) {
+          return (
+            <IssuerCredentialStatusIcon
+              credentialExchangeInfo={credentialInfo}
+            />
+          );
+        },
       },
       {
         title: 'Updated',
@@ -101,43 +98,73 @@ export const IssuedCredentialsList: React.FC<Props> = (props) => {
         defaultSortOrder: 'ascend',
       },
       {
-        key: 'remove',
-        title: <span style={{ visibility: 'hidden' }}>{'Remove'}</span>,
+        key: 'action',
+        title: <span style={{ visibility: 'hidden' }}>{'action'}</span>,
+        width: '10%',
         align: 'right',
         render(_, credentialInfo) {
           return (
-            <DangerLink
-              onClick={() => {
-                if (credentialInfo.record.credential_exchange_id)
-                  opts.onRemove(credentialInfo.record.credential_exchange_id);
-              }}
-              className="CompletedCredentialExchangeList__removeExchangeButton">
-              Remove
-            </DangerLink>
+            <Dropdown
+              overlay={
+                <IssuedCredentialActionMenu
+                  credentialExchangeInfo={credentialInfo}
+                  onRemove={opts.onRemove}
+                  onRevoke={opts.onRevoke}
+                />
+              }
+              trigger={['click']}>
+              <ActionLink
+                className="CompletedCredentialExchangeList__actionMenu"
+                onClick={(e) => e.preventDefault()}>
+                Actions
+              </ActionLink>
+            </Dropdown>
           );
         },
       },
     ];
   };
 
-  const removeButtonHandler = useCallback(
+  const removeActionHandler = useCallback(
     (credentialExchangeId: string): void => {
       modalDanger({
         title: 'Remove Completed Credential Issuance Record',
         content: (
           <p>
-            Removing a credential issuance record cannot be undone. Are you sure
-            you want to remove this record detail ?
+            Removing a credential issuance record cannot be undone. If the
+            credential type is revocable, you will lose the ability to revoke
+            it. Are you sure you want to remove knowledge of this credential ?
           </p>
         ),
-        onOk: () => doRemove(credentialExchangeId),
+        onOk: () => doDelete(credentialExchangeId),
       });
     },
-    [doRemove],
+    [doDelete],
+  );
+
+  const revokeActionHandler = useCallback(
+    (credentialExchangeId: string): void => {
+      modalDanger({
+        title: 'Revoke Credential',
+        content: (
+          <p>
+            Are you sure you want to Revoke this credential ? Once a credential
+            is revoked, the Holder can still present it in a proof but it will
+            NOT verify as valid for any point in time after the revocation is
+            published to the ledger. The Holder CAN continue to prove the
+            credential WAS valid at a time PRIOR to the revocation.
+          </p>
+        ),
+        onOk: () => doRevoke(credentialExchangeId),
+        okText: 'Revoke',
+      });
+    },
+    [doRevoke],
   );
 
   const columns = makeColumns({
-    onRemove: removeButtonHandler,
+    onRemove: removeActionHandler,
+    onRevoke: revokeActionHandler,
   });
 
   return (
@@ -146,12 +173,12 @@ export const IssuedCredentialsList: React.FC<Props> = (props) => {
       loading={loading}
       columns={columns}
       dataSource={dataSource}
-      rowKey={(data) => data.record.credential_id ?? 'Missing Id!'}
+      rowKey={(data) => data.record.credential_exchange_id ?? 'Missing Id!'}
       expandable={{
         expandedRowRender: (record) => (
           <VStack>
             <Heading> Credential Details </Heading>
-            <pre>{JSON.stringify(record.record, undefined, 2)}</pre>
+            <pre>{JSON.stringify(record, undefined, 2)}</pre>
           </VStack>
         ),
         expandIcon: ({ expanded, onExpand, record }) => {

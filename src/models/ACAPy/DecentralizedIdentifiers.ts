@@ -24,7 +24,7 @@ export async function createPrivateDID(agent: CloudAgentAPI): Promise<DID> {
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Create new Decentralized Identifier in Wallet',
-      error,
+      error as Response,
     );
   }
 }
@@ -38,7 +38,7 @@ export async function assignAgentsPublicDID(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Assign new Public Decentralized Identifier for Wallet',
-      error,
+      error as Response,
     );
   }
 }
@@ -53,7 +53,7 @@ export async function writeDIDToLedger(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Write Decentralized Identifier to Ledger',
-      error,
+      error as Response,
     );
   }
 }
@@ -65,7 +65,7 @@ export async function fetchAllAgentDIDs(agent: CloudAgentAPI): Promise<DID[]> {
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Decentralized Identifiers from Wallet',
-      error,
+      error as Response,
     );
   }
 }

@@ -2,6 +2,7 @@ import { By, until } from 'selenium-webdriver';
 import {
   e2eExecuteTableRowDropdownAction,
   e2eNavigateToCard,
+  e2eWaitElementVisible,
 } from './commonHelpers';
 import { driver } from './setup-tests';
 
@@ -61,8 +62,8 @@ export async function e2eNavigateToIssuedCredentialsCard(): Promise<void> {
  * This allows tests that may want to do other actions before/instead of
  * submitting.
  *
- * @param {!string} schemaId the unique schema that defines the credential
- * type being requested and defines the attributes required.
+ * @param {!string} credentialDefinitionId the unique credential definition
+ * that defines the credential type being requested and defines the attributes required.
  * @param {!string} message a human readable message intended to be sent
  * to the issuer explaining the purpose or reason for the credential request
  * @param {!string} connectionAlias the DIDComm connection alias representign
@@ -72,7 +73,7 @@ export async function e2eNavigateToIssuedCredentialsCard(): Promise<void> {
  *
  */
 export async function e2eEnterCredentialProposalDetails(
-  schemaId: string,
+  credentialDefinitionId: string,
   message: string,
   connectionAlias: string,
   attributes: { name: string; value: string }[],
@@ -96,12 +97,18 @@ export async function e2eEnterCredentialProposalDetails(
   );
 
   await (
-    await driver.wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
+    await driver.wait(
+      until.elementLocated(By.id('credentialDefinitionId')),
+      ciWaitDefault,
+    )
   ).click();
 
   await (
-    await driver.wait(until.elementLocated(By.id('schemaId')), ciWaitDefault)
-  ).sendKeys(schemaId);
+    await driver.wait(
+      until.elementLocated(By.id('credentialDefinitionId')),
+      ciWaitDefault,
+    )
+  ).sendKeys(credentialDefinitionId);
 
   await (
     await driver.wait(until.elementLocated(By.id('message')), ciWaitDefault)
@@ -158,25 +165,23 @@ export async function e2eEnterCredentialProposalDetails(
  * Utility function to enter send a credential proposal
  * for a requesting Holder.
  *
- * @param {!string} schemaId the unique schema that defines the credential
- * type being requested and defines the attributes required.
+ * @param {!string} credentialDefinitionId the unique credential definition
+ * that defines the credential type being requested and defines the attributes required.
  * @param {!string} message a human readable message intended to be sent
  * to the issuer explaining the purpose or reason for the credential request
  * @param {!string} connectionAlias the DIDComm connection alias representign
  * connection to the Issuer
  * @param {!{name:string, value:string}[]} attributes the list of name, value
  * pairs representing schema attributes and the values to be assigned
- * @return {!string} returns the threadid created to identify the credential
- * issuance protocol session
  */
 export async function e2eSendCredentialProposal(
-  schemaId: string,
+  credentialDefinitionId: string,
   message: string,
   connectionAlias: string,
   attributes: { name: string; value: string }[],
-): Promise<string> {
+): Promise<void> {
   await e2eEnterCredentialProposalDetails(
-    schemaId,
+    credentialDefinitionId,
     message,
     connectionAlias,
     attributes,
@@ -210,35 +215,21 @@ export async function e2eSendCredentialProposal(
   // Wait for message to dissapear to avoid artifact issues
   // with subsequent UI actions
   await driver.wait(until.stalenessOf(confirmation), ciWaitDefault);
-
-  // Get the thread id to use in looking up the
-  // credential proposal in the issuer
-  const credentialThread = await (
-    await driver.wait(
-      until.elementLocated(
-        By.xpath(`//td[contains(.,'${connectionAlias}')]/../td[2]`),
-      ),
-      ciWaitDefault,
-    )
-  ).getText();
-
-  return credentialThread;
 }
 
 /**
  * Utility test routine to Navigate to Credential Issuer Active Credential
  * Requests and offer proposed credential.
  *
- * @param {!string} credentialThread the unique id of the credential
- * request thread to be offered.
+ * @param {!string} credentialRowId a unique data value to identify the row
  */
 export async function e2eOfferCredential(
-  credentialThread: string,
+  credentialRowId: string,
 ): Promise<void> {
   await e2eNavigateToActiveCredentialRequestsCard();
   await e2eExecuteTableRowDropdownAction(
     'ActiveCredentialRequestsList',
-    credentialThread,
+    credentialRowId,
     'Actions',
     'Offer Credential',
     'Offer',
@@ -249,16 +240,15 @@ export async function e2eOfferCredential(
 /**
  * Utility test routine to accept an offered credential at the Holder
  *
- * @param {!string} credentialThread the unique id of the credential
- * request thread to be accepted.
+ * @param {!string} credentialRowId a unique data value to identify the row
  */
 export async function e2eAcceptCredential(
-  credentialThread: string,
+  credentialRowId: string,
 ): Promise<void> {
   await e2eNavigateToRequestedCredentialsCard();
   await e2eExecuteTableRowDropdownAction(
     'CredentialRequestsList',
-    credentialThread,
+    credentialRowId,
     'Actions',
     'Accept Offer',
     'Accept',
@@ -269,16 +259,15 @@ export async function e2eAcceptCredential(
 /**
  * Utility test routine to issue an offered credential at the Issuer
  *
- * @param {!string} credentialThread the unique id of the credential
- * request thread to be accepted.
+ * @param {!string} credentialRowId a unique data value to identify the row
  */
 export async function e2eIssueCredential(
-  credentialThread: string,
+  credentialRowId: string,
 ): Promise<void> {
   await e2eNavigateToActiveCredentialRequestsCard();
   await e2eExecuteTableRowDropdownAction(
     'ActiveCredentialRequestsList',
-    credentialThread,
+    credentialRowId,
     'Actions',
     'Issue Credential',
     'Issue',
@@ -289,16 +278,15 @@ export async function e2eIssueCredential(
 /**
  * Utility test routine to save an issued credential at the Holder
  *
- * @param {!string} credentialThread the unique id of the credential
- * request thread to be accepted.
+ * @param {!string} credentialRowId a unique data value to identify the row
  */
 export async function e2eSaveCredential(
-  credentialThread: string,
+  credentialRowId: string,
 ): Promise<void> {
   await e2eNavigateToRequestedCredentialsCard();
   await e2eExecuteTableRowDropdownAction(
     'CredentialRequestsList',
-    credentialThread,
+    credentialRowId,
     'Actions',
     'Save Credential',
     'Save',
@@ -309,10 +297,10 @@ export async function e2eSaveCredential(
 /**
  * Utility test routine to execute the complete process of proposing,
  * issuing and saving a credential based on a specified connnection,
- * schema and set of attribute values.
+ * credential definition and set of attribute values.
  *
- * @param {!string} schemaId the unique schema that defines the credential
- * type being requested and defines the attributes required.
+ * @param {!string} credentialDefinitionId the unique credential definition
+ * that defines the credential type being requested and defines the attributes required.
  * @param {!string} message a human readable message intended to be sent
  * to the issuer explaining the purpose or reason for the credential request
  * @param {!string} connectionAlias the DIDComm connection alias representing
@@ -323,20 +311,46 @@ export async function e2eSaveCredential(
  * issuance protocol session
  */
 export async function e2eObtainCredential(
-  schemaId: string,
+  credentialDefinitionId: string,
   message: string,
   connectionAlias: string,
   attributes: { name: string; value: string }[],
-): Promise<void> {
-  const credentialThread = await e2eSendCredentialProposal(
-    schemaId,
+): Promise<Record<string, any>> {
+  await e2eSendCredentialProposal(
+    credentialDefinitionId,
     message,
     connectionAlias,
     attributes,
   );
 
-  await e2eOfferCredential(credentialThread);
-  await e2eAcceptCredential(credentialThread);
-  await e2eIssueCredential(credentialThread);
-  await e2eSaveCredential(credentialThread);
+  await e2eOfferCredential(credentialDefinitionId);
+  await e2eAcceptCredential(credentialDefinitionId);
+  await e2eIssueCredential(credentialDefinitionId);
+  await e2eSaveCredential(credentialDefinitionId);
+
+  // Return the credential exchange record in case they want to
+  // explicitely reference the records for this exchange later.
+  await e2eNavigateToIssuedCredentialsCard();
+
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        `//div[@id='IssuedCredentialsList']//table/tbody/tr/td[contains(.,'${credentialDefinitionId}')]/../td/span[contains(@class,'anticon-plus-square')]`,
+      ),
+      ciWaitDefault,
+    )
+  ).click();
+
+  const credentialExchange = JSON.parse(
+    await (
+      await e2eWaitElementVisible(
+        By.xpath(
+          `//div[@id='IssuedCredentialsList']//table/tbody/tr[contains(@class,'ant-table-expanded-row')]//pre`,
+        ),
+        ciWaitDefault,
+      )
+    ).getText(),
+  );
+
+  return credentialExchange;
 }

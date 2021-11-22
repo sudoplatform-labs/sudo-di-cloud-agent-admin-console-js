@@ -7,7 +7,10 @@ import {
   e2eWaitElementVisible,
 } from './commonHelpers';
 import { e2eAcceptInvitation, e2eCreateInvitation } from './connectionHelpers';
-import { e2eCreateCredentialDefinition } from './credentialDefinitionHelpers';
+import {
+  e2eCreateCredentialDefinition,
+  e2eGetCredentialDefinitionId,
+} from './credentialDefinitionHelpers';
 import { e2eObtainCredential } from './credentialIssuanceHelpers';
 import {
   e2eNavigateToHolderActiveProofPresentationsCard,
@@ -19,10 +22,7 @@ import {
   e2eVerifyProof,
   ppWaitDefault,
 } from './proofPresentationHelpers';
-import {
-  e2eCreateSchemaDefinition,
-  e2eGetSchemaId,
-} from './schemaDefinitionHelpers';
+import { e2eCreateSchemaDefinition } from './schemaDefinitionHelpers';
 import { driver } from './setup-tests';
 
 describe('Proof Presentation', function () {
@@ -78,18 +78,18 @@ describe('Proof Presentation', function () {
     await e2eAcceptInvitation('PP Issuer', invitationText);
 
     const schemaId = await e2eCreateSchemaDefinition(
-      'PP-0101 Test Schema',
+      'PP-0101_Test_Schema',
       '1.0',
       ['firstName', 'lastName', 'someCredentialValue', 'unRequestedAttribute'],
     );
 
-    await e2eCreateCredentialDefinition(
-      'PP-0101 Test Credential Definition',
+    const credentialDefinitionId = await e2eCreateCredentialDefinition(
+      'PP-0101_Test_Credential_Definition',
       schemaId,
     );
 
     await e2eObtainCredential(
-      schemaId,
+      credentialDefinitionId,
       'PP-0101 Credential Request Test Message',
       'PP Issuer',
       [
@@ -106,7 +106,7 @@ describe('Proof Presentation', function () {
     // Initiate proof request from verifier. In this instance the issuer is
     // also acting as the verifier as would be a common case for DI currently
     const proofRequestThreadId = await e2eSendProofRequest(
-      schemaId,
+      credentialDefinitionId,
       'PP-0101 Proof Request Test Message',
       'PP Holder',
       [
@@ -126,12 +126,14 @@ describe('Proof Presentation', function () {
 
   it('PP-0102 Remove in progress proof from wallet and issuer', async function () {
     // Re-use PP-0101 issued credential
-    const schemaId = await e2eGetSchemaId('PP-0101 Test Schema');
+    const credentialDefinitionId = await e2eGetCredentialDefinitionId(
+      'PP-0101_Test_Credential_Definition',
+    );
 
     // Initiate proof request from verifier. In this instance the issuer is
     // also acting as the verifier as would be a common case for DI currently
     const proofRequestThreadId = await e2eSendProofRequest(
-      schemaId,
+      credentialDefinitionId,
       'PP-0102 Proof Request Test Message',
       'PP Holder',
       [
@@ -165,12 +167,14 @@ describe('Proof Presentation', function () {
 
   it('PP-0103 Remove completed proof from wallet and issuer', async function () {
     // Re-use PP-0101 issued credential
-    const schemaId = await e2eGetSchemaId('PP-0101 Test Schema');
+    const credentialDefinitionId = await e2eGetCredentialDefinitionId(
+      'PP-0101_Test_Credential_Definition',
+    );
 
     // Initiate proof request from verifier. In this instance the issuer is
     // also acting as the verifier as would be a common case for DI currently
     const proofRequestThreadId = await e2eSendProofRequest(
-      schemaId,
+      credentialDefinitionId,
       'PP-0103 Proof Request Test Message',
       'PP Holder',
       [

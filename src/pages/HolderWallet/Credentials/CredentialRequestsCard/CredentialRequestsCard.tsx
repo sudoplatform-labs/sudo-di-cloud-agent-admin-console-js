@@ -16,7 +16,6 @@ import {
   CredentialExchangeData,
 } from '../../../../models/ACAPy/CredentialIssuance';
 import { HStack } from '../../../../components/layout-stacks';
-import { useInterval } from '../../../../utils/intervals';
 import { ProposeCredentialForm } from './ProposeCredentialForm';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
 import { IssueCredentialRecordsGetRoleEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
@@ -95,17 +94,6 @@ export const CredentialRequestsCard: React.FC = () => {
   useEffect(() => {
     getCredentialRequestsInfo();
   }, [getCredentialRequestsInfo, modalState]);
-
-  // Slow poll for any credential state changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getCredentialRequestsInfo();
-    }
-  }, 2000);
 
   const modalRequestCredentialCancelHandler = useCallback(() => {
     setModalState('closed');
@@ -187,7 +175,6 @@ export const CredentialRequestsCard: React.FC = () => {
           }
           extra={
             <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
               <Button
                 id="CredentialRequestsCard__new-btn"
                 type="primary"

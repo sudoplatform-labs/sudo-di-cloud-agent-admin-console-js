@@ -1,6 +1,6 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { message, Popover } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { ConsoleCard } from '../../../../components/ConsoleCard';
@@ -11,12 +11,15 @@ import {
   fetchFilteredCredentialExchangeRecords,
   deleteCredentialExchangeRecord,
   CredentialExchangeData,
+  revokeCredential,
 } from '../../../../models/ACAPy/CredentialIssuance';
-import { useInterval } from '../../../../utils/intervals';
 import { IssuedCredentialsList } from './IssuedCredentialsList';
 import { useCallback } from 'react';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
-import { IssueCredentialRecordsGetRoleEnum, IssueCredentialRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import {
+  IssueCredentialRecordsGetRoleEnum,
+  IssueCredentialRecordsGetStateEnum,
+} from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Stylised hover information icon to explain reasons for
@@ -61,23 +64,22 @@ export const IssuedCredentialsCard: React.FC = () => {
       cloudAgentAPIs,
       {
         role: IssueCredentialRecordsGetRoleEnum.Issuer,
-        states: [ IssueCredentialRecordsGetStateEnum.CredentialIssued, 
-          IssueCredentialRecordsGetStateEnum.CredentialAcked ],
+        states: [
+          IssueCredentialRecordsGetStateEnum.CredentialIssued,
+          IssueCredentialRecordsGetStateEnum.CredentialAcked,
+        ],
       },
     );
 
     const connections = await fetchAllAgentConnectionDetails(cloudAgentAPIs);
     for (const record of exchangeRecords) {
+      const credentialData: CredentialExchangeData = { record: record };
       if (record.connection_id) {
-        credentialDataResult.push({
-          record: record,
-          connection: connections.find(
-            (value) => value.connection_id === record.connection_id,
-          ),
-        });
-      } else {
-        credentialDataResult.push({ record: record });
+        credentialData.connection = connections.find(
+          (value) => value.connection_id === record.connection_id,
+        );
       }
+      credentialDataResult.push(credentialData);
     }
     return credentialDataResult;
   }, [cloudAgentAPIs]);
@@ -85,17 +87,6 @@ export const IssuedCredentialsCard: React.FC = () => {
   useEffect(() => {
     getCredentialsIssuedInfo();
   }, [getCredentialsIssuedInfo]);
-
-  // Slow poll for any credential record updates since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getCredentialsIssuedInfo();
-    }
-  }, 2000);
 
   const deleteCredentialExchangeHandler = useCallback(
     async (credentialExchangeId: string) => {
@@ -115,6 +106,22 @@ export const IssuedCredentialsCard: React.FC = () => {
     [cloudAgentAPIs, getCredentialsIssuedInfo],
   );
 
+  const revokeCredentialHandler = useCallback(
+    async (credentialExchangeId: string) => {
+      try {
+        await revokeCredential(cloudAgentAPIs, {
+          cred_ex_id: credentialExchangeId,
+          publish: true,
+        });
+        getCredentialsIssuedInfo();
+        message.success(`Credential ${credentialExchangeId} Revoked`);
+      } catch {
+        message.error('Credential failed to be revoked, please try again.');
+      }
+    },
+    [cloudAgentAPIs, getCredentialsIssuedInfo],
+  );
+
   let credentialsData;
   if (agentFailed) {
     credentialsData = <div>Unable to connect to the Cloud Agent Service</div>;
@@ -123,7 +130,8 @@ export const IssuedCredentialsCard: React.FC = () => {
       <IssuedCredentialsList
         dataSource={credentialsIssued ?? []}
         loading={infoLoading}
-        onDelete={deleteCredentialExchangeHandler}
+        doDelete={deleteCredentialExchangeHandler}
+        doRevoke={revokeCredentialHandler}
       />
     );
   }

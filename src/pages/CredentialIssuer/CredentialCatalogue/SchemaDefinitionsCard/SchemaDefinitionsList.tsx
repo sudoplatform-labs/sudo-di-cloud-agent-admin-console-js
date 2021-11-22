@@ -48,7 +48,7 @@ export const SchemaDefinitionsList: React.FC<Props> = (props) => {
         ...getColumnSearchProps('version', searchState, setSearchState),
       },
       {
-        title: 'Sequence No.',
+        title: 'Sequence',
         dataIndex: 'seqNo',
         ...getColumnSearchProps('seqNo', searchState, setSearchState),
       },

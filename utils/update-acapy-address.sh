@@ -9,6 +9,7 @@ function usage() {
   usage: $0 [options]
 
     -c : path to the acapy.json file to update 
+    -h : the hostname/ip to set in the acapyAdminUri field
 EOF
 exit 1
 }
@@ -33,24 +34,21 @@ type awk >/dev/null 2>&1 || {
 # MAIN LINE 
 ##########################################################################################
 
-while getopts ':c:' option; do
+while getopts ':c:h:' option; do
   case ${option} in
     c) configFileOption=${OPTARG} ;;
+    h) hostOption=${OPTARG} ;;
     \?) usage; 
   esac
 done
 # Remove processed options
 shift $((OPTIND -1))
 
-# Assume acapy is already running and ask docker for its network address
-acapyContainer=$(docker ps | grep sudo-di-cloud-agent | awk '{print $1}')
-acapyIPAddress=$(docker inspect --format '{{.NetworkSettings.IPAddress}}'  ${acapyContainer})
-
 # Pull the existing config file and output an updated "acapyAdminUri" field 
-awk -F: -v ipAddress=${acapyIPAddress} \
+awk -F: -v host=${hostOption} \
 '{ \
   if ($1 ~ "acapyAdminUri" ) { \
-    print $1":",$2"://"ipAddress":"$4 
+    print $1":",$2"://"host":"$4 
   } \
   else { \
     print $0

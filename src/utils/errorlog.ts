@@ -37,7 +37,9 @@ export async function reportCloudAgentError(
         ? JSON.stringify(await httpResponse.json())
         : undefined;
   } catch (err) {
-    reason422 = `JSON.stringify failed to convert 422 response body, ${err.toString()}`;
+    reason422 = `JSON.stringify failed to convert 422 response body, ${(
+      err as Error
+    ).toString()}`;
   }
   logCloudAgentError(context, httpResponse, reason422);
   return Error(reason422 ? reason422 : httpResponse.statusText);

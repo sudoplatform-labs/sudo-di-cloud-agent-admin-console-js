@@ -13,6 +13,7 @@ import { VStack } from '../../../../components/layout-stacks';
 import { Heading } from '../../../../components/charts';
 import { modalDanger } from '../../../../components/Form';
 import { IndyCredInfo } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import { HolderCredentialStatusIcon } from './HolderCredentialStatusIcon';
 
 const OwnedCredentialsInfoTable = Table as React.FC<TableProps<IndyCredInfo>>;
 
@@ -47,9 +48,18 @@ export const OwnedCredentialsList: React.FC<Props> = (props) => {
     return [
       {
         title: 'Credential Id',
+        width: '20%',
         dataIndex: 'referent',
         ...getColumnSearchProps('referent', searchState, setSearchState),
         ellipsis: true,
+      },
+      {
+        title: 'Status',
+        width: '10%',
+        align: 'center',
+        render(_, credentialInfo) {
+          return <HolderCredentialStatusIcon credentialInfo={credentialInfo} />;
+        },
       },
       {
         title: 'Credential Type',
@@ -63,6 +73,7 @@ export const OwnedCredentialsList: React.FC<Props> = (props) => {
       },
       {
         key: 'remove',
+        width: '10%',
         title: <span style={{ visibility: 'hidden' }}>{'Remove'}</span>,
         align: 'right',
         render(_, credentialInfo) {

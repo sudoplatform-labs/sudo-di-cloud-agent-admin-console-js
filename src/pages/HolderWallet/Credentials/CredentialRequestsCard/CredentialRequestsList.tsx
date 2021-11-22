@@ -107,18 +107,8 @@ export const CredentialRequestsList: React.FC<Props> = (props) => {
 
     return [
       {
-        title: 'Thread',
-        dataIndex: ['record', 'thread_id'],
-        ellipsis: true,
-        ...getColumnSearchProps(
-          ['record', 'thread_id'],
-          searchState,
-          setSearchState,
-        ),
-      },
-      {
-        title: 'Schema',
-        dataIndex: ['record', 'credential_proposal_dict', 'schema_id'],
+        title: 'Credential Type',
+        dataIndex: ['record', 'credential_proposal_dict', 'cred_def_id'],
         ...getColumnSearchProps(
           ['record', 'credential_proposal_dict', 'schema_id'],
           searchState,
@@ -157,6 +147,7 @@ export const CredentialRequestsList: React.FC<Props> = (props) => {
       },
       {
         key: 'action',
+        width: '10%',
         title: <span style={{ visibility: 'hidden' }}>{'action'}</span>,
         align: 'right',
         render(_, credentialInfo) {

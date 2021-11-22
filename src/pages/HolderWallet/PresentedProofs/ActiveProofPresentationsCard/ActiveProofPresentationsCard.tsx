@@ -8,8 +8,6 @@ import { CardsCol, CardsRow } from '../../../../components/NavLayout';
 import { theme } from '../../../../theme';
 import { AppContext } from '../../../../containers/App';
 import { ActiveProofPresentationsList } from './ActiveProofPresentationsList';
-import { HStack } from '../../../../components/layout-stacks';
-import { useInterval } from '../../../../utils/intervals';
 import {
   deleteProofExchange,
   fetchFilteredProofExchangeRecords,
@@ -17,7 +15,10 @@ import {
 } from '../../../../models/ACAPy/ProofPresentation';
 import { PreparePresentationForm } from './PreparePresentationForm';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
-import { PresentProofRecordsGetRoleEnum, PresentProofRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import {
+  PresentProofRecordsGetRoleEnum,
+  PresentProofRecordsGetStateEnum,
+} from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 // Modal dialogs need to be displayed
 // during proof presentation preparation.  ModalState
@@ -59,10 +60,8 @@ const ActiveProofsIconPopover: React.FC = () => {
 export const ActiveProofPresentationsCard: React.FC = () => {
   const { cloudAgentAPIs } = useContext(AppContext);
   const [modalState, setModalState] = useState<ModalState>('closed');
-  const [
-    selectedProof,
-    setSelectedProof,
-  ] = useState<PresentationExchangeData>();
+  const [selectedProof, setSelectedProof] =
+    useState<PresentationExchangeData>();
 
   const [
     { loading: infoLoading, value: proofs, error: agentFailed },
@@ -105,17 +104,6 @@ export const ActiveProofPresentationsCard: React.FC = () => {
   useEffect(() => {
     getProofRequestsInfo();
   }, [getProofRequestsInfo, modalState]);
-
-  // Slow poll for any proof presentation state changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getProofRequestsInfo();
-    }
-  }, 2000);
 
   const modalCreatePresentationCancelHandler = useCallback(() => {
     setModalState('closed');
@@ -172,11 +160,6 @@ export const ActiveProofPresentationsCard: React.FC = () => {
             <span>
               Active Proof Presentations <ActiveProofsIconPopover />
             </span>
-          }
-          extra={
-            <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
-            </HStack>
           }>
           {proofRequestsData}
         </ConsoleCard>

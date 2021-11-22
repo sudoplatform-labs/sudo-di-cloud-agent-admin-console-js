@@ -89,7 +89,7 @@ export async function fetchFilteredProofExchangeRecords(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Proof Exchange Records from Wallet',
-      error,
+      error as Response,
     );
   }
 }
@@ -117,7 +117,10 @@ export async function sendProofRequest(
       body: agentRequest,
     });
   } catch (error) {
-    throw await reportCloudAgentError(`Failed to Send Proof Request`, error);
+    throw await reportCloudAgentError(
+      `Failed to Send Proof Request`,
+      error as Response,
+    );
   }
 }
 
@@ -132,7 +135,7 @@ export async function deleteProofExchange(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete Proof Exchange Record: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -154,7 +157,7 @@ export async function fetchCredentialsMatchingProof(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to match Proof with credentials from Wallet',
-      error,
+      error as Response,
     );
   }
 }
@@ -174,7 +177,7 @@ export async function sendProofPresentation(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to send Proof Presentation to verifier',
-      error,
+      error as Response,
     );
   }
 }
@@ -192,7 +195,7 @@ export async function verifyProofPresentation(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to verify Proof Presentation',
-      error,
+      error as Response,
     );
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@sudoplatform-labs/sudo-di-cloud-agent-admin-console",
   "description": "Sudo Decentalized Identity Cloud Agent Admin Console Application",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Anonyome Platform Team",
   "license": "Apache-2.0",
   "files": [
@@ -18,14 +18,14 @@
     "build": "react-scripts build",
     "build:prod": "yarn audit && yarn build",
     "build:ts-check": "yarn tsc --noEmit",
-    "test:update-acapy-address": "./utils/update-acapy-address.sh -c ./build/acapy.json",
+    "test:update-acapy-address": "./utils/update-acapy-address.sh -c ./build/acapy.json -h cloud-agent",
     "test:execute-e2e": "jest --runInBand -c jest.e2e.config.js",
-    "test:start-browser-server-debug": "./e2e/browser-server.sh start -i selenium/standalone-chrome-debug:3.141.59 -p 4445",
-    "test:start-browser-server": "./e2e/browser-server.sh start -i selenium/standalone-chrome:3.141.59 -p 4445",
-    "test:stop-browser-server": "./e2e/browser-server.sh stop",
-    "test:start-e2e-env": "yarn di-env start -c $PWD/public/acapy.json && yarn test:update-acapy-address && yarn test:start-browser-server-debug",
-    "test:stop-e2e-env": "yarn test:stop-browser-server; yarn di-env down",
-    "test:run-e2e": "rm -rf .e2e_test_success && yarn test:start-e2e-env && yarn test:execute-e2e && touch .e2e_test_success; yarn test:stop-e2e-env",
+    "test:up-browser-server-debug": "./e2e/browser-server.sh up -i selenium/standalone-chrome-debug:3.141.59 -p 4445",
+    "test:up-browser-server": "./e2e/browser-server.sh up -i selenium/standalone-chrome:3.141.59 -p 4445",
+    "test:down-browser-server": "./e2e/browser-server.sh down",
+    "test:up-e2e-env": "yarn di-env up -c $PWD/public/acapy.json && yarn test:update-acapy-address && yarn test:up-browser-server-debug",
+    "test:down-e2e-env": "yarn test:down-browser-server; yarn di-env down",
+    "test:run-e2e": "rm -rf .e2e_test_success && yarn test:up-e2e-env && yarn test:execute-e2e && touch .e2e_test_success; yarn test:down-e2e-env",
     "test:unit": "yarn react-scripts test",
     "test:e2e": "yarn test:run-e2e",
     "test:all": "CI=true yarn test:unit && yarn test:e2e ",
@@ -43,10 +43,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.5",
-    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.4.0",
-    "antd": "^4.5.4",
+    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.6.1",
+    "antd": "4.9.4",
     "antd-mask-input": "^0.1.13",
-    "color": "^3.1.2",
+    "color": "^3.2.0",
     "d3": "^5.12.0",
     "https-proxy-agent": "^5.0.0",
     "lodash": "^4.17.21",
@@ -118,7 +118,7 @@
     "react-test-renderer": "^16.14.0",
     "selenium-webdriver": "^4.0.0-alpha.8",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "~3.7.2"
+    "typescript": "~4.4.3"
   },
   "resolutions": {
     "**/node-fetch": "^2.6.1",
@@ -127,6 +127,7 @@
     "**/lodash": "^4.17.21",
     "**/hosted-git-info": "^2.8.9",
     "**/url-parse": "^1.5.0",
+    "**/path-parse": "^1.0.7",
     "react-scripts/webpack/terser-webpack-plugin/cacache/ssri": "^6.0.2",
     "react-scripts/terser-webpack-plugin/cacache/ssri": "^8.0.1",
     "react-scripts/react-dev-utils/immer": "^8.0.1",
@@ -138,11 +139,6 @@
       "!**/*.d.ts",
       "!src/test/**/*.{ts,tsx}"
     ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 40
-      }
-    },
     "coverageReporters": [
       "text",
       "text-summary",

@@ -31,20 +31,20 @@ describe('Schema Definition', function () {
   });
 
   it('SD-0101 Create valid basic schema with one attribute', async function () {
-    await e2eCreateSchemaDefinition('SD-0101 Test Schema', '0.1', [
+    await e2eCreateSchemaDefinition('SD-0101_Test_Schema', '0.1', [
       'licenseNumber',
     ]);
   });
 
   it('SD-0102 Create valid basic schema with two attributes', async function () {
-    await e2eCreateSchemaDefinition('SD-0102 Test Schema', '1.0', [
+    await e2eCreateSchemaDefinition('SD-0102_Test_Schema', '1.0', [
       'firstName',
       'lastName',
     ]);
   });
 
   it('SD-0103 Enter valid schema details with two pages of attributes check paging updates', async function () {
-    await e2eEnterSchemaDefintionDetails('SD-0103 Test Schema', '1.5', [
+    await e2eEnterSchemaDefintionDetails('SD-0103_Test_Schema', '1.5', [
       'firstName',
       'lastName',
       'streetNumber',
@@ -72,7 +72,7 @@ describe('Schema Definition', function () {
   });
 
   it('SD-0104 Initiate valid basic schema with one attribute then delete attribute', async function () {
-    await e2eEnterSchemaDefintionDetails('SD-0104 Test Schema', '0.2', [
+    await e2eEnterSchemaDefintionDetails('SD-0104_Test_Schema', '0.2', [
       'licenseNumber',
     ]);
 

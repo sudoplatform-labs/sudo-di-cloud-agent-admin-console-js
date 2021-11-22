@@ -1,16 +1,3 @@
-// We use snake_case in the models modules for protocol related
-// fields because the Aries RFCs
-// define the protocol using that schema.  Originally I attempted to
-// convert to camel case here to isolate that peculiarity, however that
-// resulted in confusion when comparing to on-the-wire data. In addition
-// because of an issue with OpenAPI code generation of typescript-fetch,
-// if we don't use 'orginal' for the names output the generated
-// api doesn't match the json objects returned in responses.
-/*
- * This module contains all routines and definitions required to
- * interface with the Cloud Agent service for activities related to
- * Credential Definition by Decentralized Identity Agents.
- */
 import Table, { ColumnProps, TableProps } from 'antd/lib/table';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -58,12 +45,33 @@ export const CredentialDefinitionsList: React.FC<Props> = (props) => {
         ...getColumnSearchProps('tag', searchState, setSearchState),
       },
       {
-        title: 'Signature Type.',
+        title: 'Revocable',
+        width: '10%',
+        render(_, credentialDefinition) {
+          if (credentialDefinition.value?.revocation !== undefined) {
+            return 'Yes';
+          } else {
+            return 'No';
+          }
+        },
+        sorter: (a, b) =>
+          a.value?.revocation
+            ? b.value?.revocation
+              ? 0
+              : 1
+            : b.value?.revocation
+            ? -1
+            : 0,
+        sortDirections: ['descend', 'ascend', 'descend'],
+        defaultSortOrder: 'ascend',
+      },
+      {
+        title: 'Signature Type',
         dataIndex: 'type',
         ...getColumnSearchProps('type', searchState, setSearchState),
       },
       {
-        title: 'Schema Sequence No.',
+        title: 'Schema Sequence',
         dataIndex: 'schemaId',
         ...getColumnSearchProps('schemaId', searchState, setSearchState),
       },

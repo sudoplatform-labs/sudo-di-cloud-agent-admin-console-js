@@ -35,7 +35,7 @@ export async function fetchLedgerTaa(agent: CloudAgentAPI): Promise<TAAInfo> {
   } catch (error) {
     throw await reportCloudAgentError(
       `Current Transaction Author Agreement NOT RETURNED by Ledger`,
-      error,
+      error as Response,
     );
   }
 }
@@ -55,7 +55,7 @@ export async function acceptLedgerTaa(
   } catch (error) {
     throw await reportCloudAgentError(
       `Transaction Author Agreement NOT ACCEPTED by Ledger`,
-      error,
+      error as Response,
     );
   }
 }

@@ -32,14 +32,30 @@ describe('Credential Definition', function () {
 
   it('CD-0101 Create valid basic credential definition', async function () {
     const schemaId = await e2eCreateSchemaDefinition(
-      'CD-0101 Test Schema',
+      'CD-0101_Test_Schema',
       '1.0',
       ['firstName', 'lastName', 'someCredentialValue'],
     );
 
     await e2eCreateCredentialDefinition(
-      'CD-0101 Test Credential Definition',
+      'CD-0101_Test_Credential_Definition',
       schemaId,
+    );
+  });
+
+  it('CD-0102 Create valid revocable credential definition', async function () {
+    const schemaId = await e2eCreateSchemaDefinition(
+      'CD-0102_Test_Schema',
+      '1.0',
+      ['firstName', 'lastName', 'someCredentialValue'],
+    );
+
+    await e2eCreateCredentialDefinition(
+      'CD-0102_Test_Credential_Definition',
+      schemaId,
+      true,
+      '10000',
+      '1000',
     );
   });
 

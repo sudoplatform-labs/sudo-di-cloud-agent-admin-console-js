@@ -15,9 +15,14 @@ import { CloudAgentAPI } from '../../containers/App/AppContext';
 import {
   ConnRecord,
   CredentialPreview,
+  CredentialRevokedCredentialIdGetRequest,
+  CredRevokedResult,
+  CredRevRecordResult,
   IndyCredInfo,
   IssueCredentialRecordsGetRoleEnum,
   IssueCredentialRecordsGetStateEnum,
+  RevocationCredentialRecordGetRequest,
+  RevokeRequest,
   V10CredentialExchange,
 } from '@sudoplatform-labs/sudo-di-cloud-agent';
 import { reportCloudAgentError } from '../../utils/errorlog';
@@ -78,7 +83,7 @@ export async function deleteCredential(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete credential: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -94,7 +99,7 @@ export async function deleteCredentialExchangeRecord(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Delete Credential Exchange Record: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -117,7 +122,7 @@ export async function abortCredentialExchange(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Abort Credential Issue: ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -152,7 +157,7 @@ export async function proposeCredential(
         params.schema_name ??
         params.connection_id
       }`,
-      error,
+      error as Response,
     );
   }
 }
@@ -170,7 +175,7 @@ export async function offerCredential(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Offer Credential : ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -188,7 +193,7 @@ export async function requestProposedCredential(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Request proposed Credential : ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -206,7 +211,7 @@ export async function issueCredential(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Issue requested Credential : ${id}`,
-      error,
+      error as Response,
     );
   }
 }
@@ -222,7 +227,55 @@ export async function storeCredential(
   } catch (error) {
     throw await reportCloudAgentError(
       `Failed to Store Credential : ${id}`,
-      error,
+      error as Response,
+    );
+  }
+}
+
+export async function revokeCredential(
+  agent: CloudAgentAPI,
+  params: RevokeRequest,
+): Promise<void> {
+  try {
+    await agent.revocations.revocationRevokePost({ body: params });
+  } catch (error) {
+    throw await reportCloudAgentError(
+      `Failed to Revoke Credential : ${params.cred_ex_id}`,
+      error as Response,
+    );
+  }
+}
+
+export async function getIssuerCredentialRevocationStatus(
+  agent: CloudAgentAPI,
+  params: RevocationCredentialRecordGetRequest,
+): Promise<CredRevRecordResult> {
+  try {
+    const result = await agent.revocations.revocationCredentialRecordGet(
+      params,
+    );
+    return result;
+  } catch (error) {
+    throw await reportCloudAgentError(
+      `Failed to retreive Revocation status : ${params.credExId}`,
+      error as Response,
+    );
+  }
+}
+
+export async function getHolderCredentialRevocationStatus(
+  agent: CloudAgentAPI,
+  params: CredentialRevokedCredentialIdGetRequest,
+): Promise<CredRevokedResult> {
+  try {
+    const result = await agent.credentials.credentialRevokedCredentialIdGet(
+      params,
+    );
+    return result;
+  } catch (error) {
+    throw await reportCloudAgentError(
+      `Failed to retreive Revocation status : ${params.credentialId}`,
+      error as Response,
     );
   }
 }
@@ -252,7 +305,7 @@ export async function fetchFilteredCredentialExchangeRecords(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Credential Exchange Records from Wallet',
-      error,
+      error as Response,
     );
   }
 }
@@ -268,7 +321,7 @@ export async function fetchAllAgentOwnedCredentialDetails(
   } catch (error) {
     throw await reportCloudAgentError(
       'Failed to Retrieve Credential List from Wallet',
-      error,
+      error as Response,
     );
   }
 }

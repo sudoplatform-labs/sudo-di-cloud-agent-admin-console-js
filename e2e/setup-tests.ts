@@ -12,7 +12,7 @@ import { env } from './config';
 expect.extend({ toMatchImageSnapshot });
 
 // increased default timeout to allow for slow running / complex tests
-jest.setTimeout(120000);
+jest.setTimeout(1500000);
 export let driver: WebDriver;
 
 beforeEach(async () => {

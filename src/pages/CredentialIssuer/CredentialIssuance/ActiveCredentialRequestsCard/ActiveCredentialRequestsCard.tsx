@@ -1,6 +1,6 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { Popover, message } from 'antd';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 import styled from 'styled-components';
 import { ConsoleCard } from '../../../../components/ConsoleCard';
@@ -15,10 +15,11 @@ import {
   issueCredential,
   CredentialExchangeData,
 } from '../../../../models/ACAPy/CredentialIssuance';
-import { HStack } from '../../../../components/layout-stacks';
-import { useInterval } from '../../../../utils/intervals';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
-import { IssueCredentialRecordsGetRoleEnum, IssueCredentialRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import {
+  IssueCredentialRecordsGetRoleEnum,
+  IssueCredentialRecordsGetStateEnum,
+} from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 /**
  * Stylised hover information icon to explain reasons for
@@ -94,17 +95,6 @@ export const ActiveCredentialRequestsCard: React.FC = () => {
     getCredentialRequestsInfo();
   }, [getCredentialRequestsInfo]);
 
-  // Slow poll for any credential state changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getCredentialRequestsInfo();
-    }
-  }, 2000);
-
   const rejectCredentialProposalHandler = useCallback(
     async (credentialExchangeId: string) => {
       try {
@@ -174,11 +164,6 @@ export const ActiveCredentialRequestsCard: React.FC = () => {
             <span>
               Active Credential Requests <ActiveCredentialRequestsIconPopover />
             </span>
-          }
-          extra={
-            <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
-            </HStack>
           }>
           {credentialRequestsData}
         </ConsoleCard>

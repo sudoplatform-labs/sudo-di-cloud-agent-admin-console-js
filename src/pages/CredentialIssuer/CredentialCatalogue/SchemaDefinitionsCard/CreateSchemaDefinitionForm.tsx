@@ -13,6 +13,8 @@ import {
   SchemaAttribute,
 } from './CreateSchemaDefinitionAttributeList';
 import { modalTAAAcceptance } from '../../../../components/Form';
+import { RuleObject } from 'antd/lib/form';
+import { StoreValue } from 'antd/lib/form/interface';
 
 const FooterContainer = styled.div`
   display: flex;
@@ -81,20 +83,6 @@ export const CreateSchemaDefinitionForm: React.FC<Props> = (props) => {
     );
   };
 
-  const validateAttributeName = (value: string): Promise<void> => {
-    if (!value.match('^[a-zA-Z0-9_]+$')) {
-      return Promise.reject(
-        'Attribute names can only contain the following characters a-zA-Z0-9_',
-      );
-    } else if (
-      currentAttributes.find((attribute) => value === attribute.name)
-    ) {
-      return Promise.reject('Attribute names must be unique within a Schema');
-    } else {
-      return Promise.resolve();
-    }
-  };
-
   const attributeInput = useRef<Input>(null);
 
   const enterAttributeNameHandler = async (
@@ -103,7 +91,6 @@ export const CreateSchemaDefinitionForm: React.FC<Props> = (props) => {
     keyEvent.preventDefault(); // Don't let the form submit on enter here
     const attributeName = keyEvent.currentTarget.value;
     try {
-      await validateAttributeName(attributeName);
       setCurrentAttributes([...currentAttributes, { name: attributeName }]);
       form.resetFields(['attributes']);
       // This is bizzare but for some reason eslint complains if
@@ -115,7 +102,7 @@ export const CreateSchemaDefinitionForm: React.FC<Props> = (props) => {
       }
     } catch (err) {
       // Do nothing on bad input
-      message.error(err);
+      message.error(err as Error);
     }
   };
 
@@ -129,7 +116,21 @@ export const CreateSchemaDefinitionForm: React.FC<Props> = (props) => {
         name="schemaName"
         label="Schema Name"
         rules={[
-          { required: true, message: 'Please provide a name for the Schema.' },
+          {
+            required: true,
+            validator: (rule: RuleObject, value: StoreValue): Promise<void> => {
+              const validSchemaNameRegex = /^[a-zA-Z0-9_-]+$/;
+              // Vaidate that the pattern matches a valid schema Id before attempting
+              // to fetch it to avoid constant fetch attempts on every character entry.
+              if (value && validSchemaNameRegex.test(value)) {
+                return Promise.resolve(value);
+              } else {
+                return Promise.reject(
+                  'Schema names can only contain the following characters a-zA-Z0-9_-',
+                );
+              }
+            },
+          },
         ]}>
         <Input
           type="text"
@@ -153,7 +154,32 @@ export const CreateSchemaDefinitionForm: React.FC<Props> = (props) => {
           onPressEnter={(e) => e.preventDefault()}
         />
       </Form.Item>
-      <Form.Item name="attributes" label="Schema Attributes">
+      <Form.Item
+        name="attributes"
+        label="Schema Attributes"
+        rules={[
+          {
+            required: true,
+            validator: (rule: RuleObject, value: StoreValue): Promise<void> => {
+              const validSchemaNameRegex = /^[a-zA-Z0-9_-]+$/;
+              // Vaidate that the pattern matches a valid schema Id before attempting
+              // to fetch it to avoid constant fetch attempts on every character entry.
+              if (value && !validSchemaNameRegex.test(value)) {
+                return Promise.reject(
+                  'Attribute names can only contain the following characters a-zA-Z0-9_-',
+                );
+              } else if (
+                currentAttributes.find((attribute) => value === attribute.name)
+              ) {
+                return Promise.reject(
+                  'Attribute names must be unique within a Schema',
+                );
+              } else {
+                return Promise.resolve(value);
+              }
+            },
+          },
+        ]}>
         <Input
           name="attributeInput"
           type="text"

@@ -1,4 +1,4 @@
-import { By, until } from 'selenium-webdriver';
+import { By, Key } from 'selenium-webdriver';
 import {
   e2eAcceptTAAForm,
   e2eCheckMessageDisplays,
@@ -21,6 +21,31 @@ export async function e2eNavigateToCredentialDefinitionsCard(): Promise<void> {
   );
 }
 
+export async function e2eGetCredentialDefinitionId(
+  name: string,
+): Promise<string> {
+  await e2eNavigateToCredentialDefinitionsCard();
+
+  // Obtain the credential identifier to return
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(`//td[contains(.,'${name}')]/../td[1]`),
+      cdWaitDefault,
+    )
+  ).click();
+
+  const credentialDefinitionId = await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        "//h3[contains(.,'Credential Definition Identifier')]/following-sibling::p",
+      ),
+      cdWaitDefault,
+    )
+  ).getText();
+
+  return credentialDefinitionId;
+}
+
 /**
  * Utility function to create a credential definition
  * given a name and schema identifier
@@ -29,11 +54,19 @@ export async function e2eNavigateToCredentialDefinitionsCard(): Promise<void> {
  * credential definition.
  * @param {!string} schemId the full identifier of the schema to associate
  * with this credential definition.
+ * @param {boolean} revocable whether credentials issued from this definition
+ * can be revoked
+ * @param {string} old_registry_size the size field value expected on entry
+ * @param {string} new_registry_size the number of revocable credentials to allocate
+ * in each revocable_registry.
  */
 export async function e2eCreateCredentialDefinition(
   name: string,
   schemaId: string,
-): Promise<void> {
+  revocable?: boolean,
+  old_registry_size?: string,
+  new_registry_size?: string,
+): Promise<string> {
   await e2eNavigateToCredentialDefinitionsCard();
 
   await (
@@ -54,6 +87,39 @@ export async function e2eCreateCredentialDefinition(
   // Use the SchemaId from our created schema
   await (await driver.findElement(By.id('schemaId'))).sendKeys(schemaId);
 
+  // If revocable is indicated toggle switch
+  if (revocable) {
+    await (await driver.findElement(By.id('revocable'))).click();
+  }
+  // If registry size is indicated, set that too
+  if (old_registry_size) {
+    expect(await driver.findElement(By.id('size')).getAttribute('value')).toBe(
+      old_registry_size,
+    );
+  }
+
+  if (new_registry_size) {
+    const element = await driver.findElement(By.id('size'));
+
+    while ((await element.getAttribute('value')) !== '') {
+      await element.sendKeys(Key.BACK_SPACE);
+    }
+
+    await driver
+      .actions({ bridge: true })
+      .pause(200)
+      .move({ origin: element })
+      .pause(200)
+      .click()
+      .pause(200)
+      .sendKeys(new_registry_size)
+      .perform();
+
+    expect(await driver.findElement(By.id('size')).getAttribute('value')).toBe(
+      new_registry_size,
+    );
+  }
+
   await (
     await e2eWaitElementVisible(
       By.css('#CreateCredentialDefinitionForm__submit-btn > span'),
@@ -68,9 +134,23 @@ export async function e2eCreateCredentialDefinition(
     cdWaitDefault,
   );
 
-  // Verify the credential has been put into the table
-  await driver.wait(
-    until.elementLocated(By.xpath(`//td[contains(.,'${name}')]`)),
-    cdWaitDefault,
-  );
+  // Obtain the credential definition identifier to return, which also ensures it was
+  // created and displayed.
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(`//td[contains(.,'${name}')]/../td[1]`),
+      cdWaitDefault,
+    )
+  ).click();
+
+  const credentialDefinitionId = await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        "//h3[contains(.,'Credential Definition Identifier')]/following-sibling::p",
+      ),
+      cdWaitDefault,
+    )
+  ).getText();
+
+  return credentialDefinitionId;
 }

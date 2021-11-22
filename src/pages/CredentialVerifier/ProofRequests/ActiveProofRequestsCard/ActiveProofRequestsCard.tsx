@@ -9,7 +9,6 @@ import { theme } from '../../../../theme';
 import { AppContext } from '../../../../containers/App';
 import { ActiveProofRequestsList } from './ActiveProofRequestsList';
 import { HStack } from '../../../../components/layout-stacks';
-import { useInterval } from '../../../../utils/intervals';
 import {
   deleteProofExchange,
   fetchFilteredProofExchangeRecords,
@@ -18,7 +17,10 @@ import {
 } from '../../../../models/ACAPy/ProofPresentation';
 import { RequestProofForm } from './RequestProofForm';
 import { fetchAllAgentConnectionDetails } from '../../../../models/ACAPy/Connections';
-import { PresentProofRecordsGetRoleEnum, PresentProofRecordsGetStateEnum } from '@sudoplatform-labs/sudo-di-cloud-agent';
+import {
+  PresentProofRecordsGetRoleEnum,
+  PresentProofRecordsGetStateEnum,
+} from '@sudoplatform-labs/sudo-di-cloud-agent';
 
 // Modal dialogs need to be displayed
 // during proof request processing.  ModalState
@@ -102,17 +104,6 @@ export const ActiveProofRequestsCard: React.FC = () => {
     getProofRequestsInfo();
   }, [getProofRequestsInfo, modalState]);
 
-  // Slow poll for any proof request table changes since
-  // we don't have any ACA-py hooks implemented.
-  const [count, setCount] = useState(30);
-  useInterval(() => {
-    setCount(count - 2);
-    if (count <= 0) {
-      setCount(30);
-      getProofRequestsInfo();
-    }
-  }, 2000);
-
   const modalRequestProofCancelHandler = useCallback(() => {
     setModalState('closed');
   }, []);
@@ -173,7 +164,6 @@ export const ActiveProofRequestsCard: React.FC = () => {
           }
           extra={
             <HStack>
-              <h5>Refresh in {count.toString().padStart(2, '0')}</h5>
               <Button
                 id="ActiveProofRequestsCard__new-btn"
                 type="primary"
@@ -189,6 +179,7 @@ export const ActiveProofRequestsCard: React.FC = () => {
       </CardsCol>
       <Modal
         title="Request Proof"
+        width="50%"
         visible={modalState === 'request-proof-open'}
         onCancel={modalRequestProofCancelHandler}
         footer={null}>

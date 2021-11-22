@@ -92,16 +92,6 @@ export const ActiveProofRequestsList: React.FC<Props> = (props) => {
 
     return [
       {
-        title: 'Thread',
-        dataIndex: ['record', 'thread_id'],
-        ellipsis: true,
-        ...getColumnSearchProps(
-          ['record', 'thread_id'],
-          searchState,
-          setSearchState,
-        ),
-      },
-      {
         title: 'Connection',
         dataIndex: ['connection', 'alias'],
         ellipsis: true,
@@ -122,6 +112,16 @@ export const ActiveProofRequestsList: React.FC<Props> = (props) => {
         ),
       },
       {
+        title: 'Thread',
+        dataIndex: ['record', 'thread_id'],
+        ellipsis: true,
+        ...getColumnSearchProps(
+          ['record', 'thread_id'],
+          searchState,
+          setSearchState,
+        ),
+      },
+      {
         title: 'Updated',
         ellipsis: true,
         render(_, proofInfo) {
@@ -133,6 +133,7 @@ export const ActiveProofRequestsList: React.FC<Props> = (props) => {
       },
       {
         key: 'action',
+        width: '10%',
         title: <span style={{ visibility: 'hidden' }}>{'action'}</span>,
         align: 'right',
         render(_, proofInfo) {

@@ -14,7 +14,7 @@ interface Props {
   cloudAgentAPIs: CloudAgentAPI;
 }
 
-// This JSX.element is intended to be included as a Form.Item
+// This function returning a JSX.element is intended to be included as a Form.Item
 // inside a Form.  It provides a dropdown selection of
 // DIDComm connections known to the Agent.
 export const DIDCommSelectionItem = (props: Props): JSX.Element => {

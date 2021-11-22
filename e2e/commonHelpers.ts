@@ -5,7 +5,7 @@ export const commonWaitDefault = 20000;
 
 /**
  * Utility function to wait for a element to appear and be
- * visible.  Returns to element if found.
+ * visible.  Returns the element if found.
  *
  * @param {?number} wait an optional amount of time to use when waiting for
  * elements to resolve when locating them.
@@ -25,6 +25,26 @@ export async function e2eWaitElementVisible(
     return element;
   } catch (e) {
     throw `Failed to find visible element ${locator}: ${e}`;
+  }
+}
+
+export async function e2eScrollToElement(
+  locator: Locator,
+  wait: number = commonWaitDefault,
+): Promise<WebElement> {
+  try {
+    const element = await driver.wait(until.elementLocated(locator), wait);
+
+    // Move will scroll down and bring the element into view
+    await driver
+      .actions({ bridge: true })
+      .pause(200)
+      .move({ origin: element })
+      .pause(200)
+      .perform();
+    return element;
+  } catch (e) {
+    throw `Failed to scroll to element ${locator}: ${e}`;
   }
 }
 
@@ -324,6 +344,7 @@ export async function e2eExecuteTableRowDropdownAction(
       .move({ origin: element })
       .pause(200)
       .click()
+      .pause(200)
       .perform();
   }
 
@@ -480,6 +501,126 @@ export async function e2eAcceptTAAForm(
     await e2eWaitElementVisible(
       By.css('#ModalTAAAcceptance__accept-btn > span'),
       wait,
+    )
+  ).click();
+}
+
+/**
+ * Utility function to input a time into an antd DatePicker
+ * Expects the DatePicker to be currently displaying on entry
+ *
+ * @param {!string} locatorPrefix a string that can be used at the front of an XPATH
+ * to locate the specific DatePicker element of interest
+ * @param {!Date} date a Date object representing the entryDate Date/Time to
+ * select in the RangePicker
+ * @param {?number} wait an optional amount of time to use when waiting for
+ * elements to resolve when locating them.
+ */
+export async function e2eEnterDatePickerDetails(
+  locatorPrefix: string,
+  entryDate: Date,
+  wait: number = commonWaitDefault,
+): Promise<void> {
+  const monthNumberFromString = (month: string): number => {
+    return new Date(Date.parse(month + ' 1, 2000')).getMonth() + 1;
+  };
+
+  // Split the start date up into YY,MM,DD, hh, mm, ss components
+  // to use in navigating the picker components
+  const YY = String(entryDate.getUTCFullYear()).padStart(4, '0');
+  const MM = String(entryDate.getUTCMonth() + 1).padStart(2, '0');
+  const DD = String(entryDate.getUTCDate()).padStart(2, '0');
+  const hh = String(entryDate.getUTCHours()).padStart(2, '0');
+  const mm = String(entryDate.getUTCMinutes()).padStart(2, '0');
+  const ss = String(entryDate.getUTCSeconds()).padStart(2, '0');
+
+  // Calculate the number of moves to get to the requested
+  // year and month
+  const yearMoves =
+    parseInt(YY) -
+    parseInt(
+      await (
+        await driver.wait(
+          until.elementLocated(
+            By.xpath(
+              `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/div/button[@class='ant-picker-year-btn']`,
+            ),
+          ),
+          wait,
+        )
+      ).getText(),
+    );
+
+  const monthMoves =
+    parseInt(MM) -
+    monthNumberFromString(
+      await (
+        await driver.wait(
+          until.elementLocated(
+            By.xpath(
+              `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/div/button[@class='ant-picker-month-btn']`,
+            ),
+          ),
+          wait,
+        )
+      ).getText(),
+    );
+
+  // Action the moves to correct year then correct month
+  const yearMoveButton =
+    yearMoves > 0
+      ? `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/button[@class='ant-picker-header-super-next-btn']`
+      : `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/button[@class='ant-picker-header-super-prev-btn']`;
+
+  for (let i = Math.abs(yearMoves); i > 0; i--) {
+    await (
+      await driver.wait(until.elementLocated(By.xpath(yearMoveButton)), wait)
+    ).click();
+  }
+
+  const monthMoveButton =
+    monthMoves > 0
+      ? `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/button[@class='ant-picker-header-next-btn']`
+      : `${locatorPrefix}//div[@class='ant-picker-date-panel']/div/button[@class='ant-picker-header-prev-btn']`;
+
+  for (let i = Math.abs(monthMoves); i > 0; i--) {
+    await (
+      await driver.wait(until.elementLocated(By.xpath(monthMoveButton)), wait)
+    ).click();
+  }
+
+  // Select Day, Hour, Minute and Seconds from selection Arrays
+  const dayDate = `${YY}-${MM}-${DD}`;
+  await (
+    await e2eWaitElementVisible(
+      By.xpath(
+        `${locatorPrefix}//div[@class='ant-picker-date-panel']/div[@class='ant-picker-body']//td[@title='${dayDate}']`,
+      ),
+      wait,
+    )
+  ).click();
+
+  await (
+    await e2eScrollToElement(
+      By.xpath(
+        `${locatorPrefix}//div[@class='ant-picker-time-panel']/div[@class='ant-picker-content']/ul[1]/li/div[contains(.,'${hh}')]`,
+      ),
+    )
+  ).click();
+
+  await (
+    await e2eScrollToElement(
+      By.xpath(
+        `${locatorPrefix}//div[@class='ant-picker-time-panel']/div[@class='ant-picker-content']/ul[2]/li/div[contains(.,'${mm}')]`,
+      ),
+    )
+  ).click();
+
+  await (
+    await e2eScrollToElement(
+      By.xpath(
+        `${locatorPrefix}//div[@class='ant-picker-time-panel']/div[@class='ant-picker-content']/ul[3]/li/div[contains(.,'${ss}')]`,
+      ),
     )
   ).click();
 }

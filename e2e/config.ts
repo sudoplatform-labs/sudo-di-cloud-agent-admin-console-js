@@ -10,13 +10,17 @@ import { join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 export const env = {
-  // The host has to be injected into the the docker browser server
-  // using `--add-host react.webserver:<IP Address>` with the IP
-  // address of the docker host
-  BASE_URL: 'http://react.webserver:3000',
-  BROWSER: 'chrome',
-  BROWSER_SERVER: 'http://localhost:4445/wd/hub',
-  HEADLESS: false,
+  // The browser server accesses the admin console on the
+  // internal docker-compose frontend network since it is running
+  // inside the docker network context. So we can use a docker-compose
+  // assigned name and the internal port value.
+  BASE_URL: process.env['TEST_BASE_URL'] ?? 'http://admin-webserver:80',
+  BROWSER: process.env['BROWSER_TYPE'] ?? 'chrome',
+  // The browser server is accessed from scripts running
+  // outside the docker network context on a mapped port.
+  BROWSER_SERVER:
+    process.env['BROWSER_SERVER_URL'] ?? 'http://localhost:4445/wd/hub',
+  HEADLESS: process.env['HEADLESS_BROWSER'] ?? 'false',
 };
 
 const driversToCleanUp: WebDriver[] = [];
@@ -64,7 +68,7 @@ function setCommonOptions<T extends firefox.Options | chrome.Options>(
 ): T {
   options.windowSize({ width: 1600, height: 1200 });
 
-  if (env.HEADLESS) {
+  if (env.HEADLESS == 'true') {
     options.headless();
   }
 

@@ -212,11 +212,7 @@ describe('SchemaDefinitionsCard', () => {
     await act(async () => {
       await changeFormInput(modal, 'schemaName', 'TEST_SCHEMA_NAME_NEW');
       await changeFormInput(modal, 'schemaVersion', '0.1');
-      await changeFormInput(
-        modal,
-        'attributes',
-        'attribute_one attribute_two attribute_three',
-      );
+      await changeFormInput(modal, 'attributes', 'attribute_one');
     });
 
     await submitForm(modal);
