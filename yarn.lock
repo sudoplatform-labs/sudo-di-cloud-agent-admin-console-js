@@ -1541,10 +1541,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@sudoplatform-labs/sudo-di-cloud-agent@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@sudoplatform-labs/sudo-di-cloud-agent/-/sudo-di-cloud-agent-0.6.1.tgz#c229d4b2a767f89d905b7d9a1c5bfc7075a0274e"
-  integrity sha512-N2V8JhbMUBvto1h9greVrW3gjZtGb9NXVCKk3pFsn+o3qnHsng0FX9zsVt3Cfuen3mAai2xj6XCHzk1dWrbnnA==
+"@sudoplatform-labs/sudo-di-cloud-agent@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/@sudoplatform-labs/sudo-di-cloud-agent/-/sudo-di-cloud-agent-0.6.3.tgz#f9816e6c597e1606e40817e29b975820cc8ab572"
+  integrity sha512-Jsm5eP7WIGCNJ6YTwckuYOygrhyqAozNE17bdKb1wkt8qcTSAvdGFAT/vpN/c0MWQd6p7/MvuWYkL6BsX8vu4w==
   dependencies:
     portable-fetch "^3.0.0"
 
@@ -9405,7 +9405,14 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-fetch@^1.0.1, node-fetch@^2.6.1:
+node-fetch@^1.0.1, node-fetch@^2.6.7:
+  version "2.6.7"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
+  integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
+  dependencies:
+    whatwg-url "^5.0.0"
+
+node-fetch@^2.6.1:
   version "2.6.5"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.5.tgz#42735537d7f080a7e5f78b6c549b7146be1742fd"
   integrity sha512-mmlIVHJEu5rnIxgEgez6b9GgWXbkZj5YZ7fx+2r94a2E+Uirsp6HsPTPlomfdHtpt/B0cdKviwkoaM6pyvUOpQ==

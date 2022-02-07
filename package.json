@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.5",
-    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.6.1",
+    "@sudoplatform-labs/sudo-di-cloud-agent": "^0.6.3",
     "antd": "4.9.4",
     "antd-mask-input": "^0.1.13",
     "color": "^3.2.0",
@@ -121,7 +121,7 @@
     "typescript": "~4.4.3"
   },
   "resolutions": {
-    "**/node-fetch": "^2.6.1",
+    "**/node-fetch": "^2.6.7",
     "**/yargs-parser": "^13.1.2",
     "**/axios": "^0.21.1",
     "**/lodash": "^4.17.21",

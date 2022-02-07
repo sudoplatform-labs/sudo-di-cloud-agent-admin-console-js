@@ -112,8 +112,8 @@ export const PreparePresentationForm: React.FC<Props> = (props) => {
     const presentationOptions: PresentationSchemaAttribute[] = [];
 
     for (const matchingCredential of matchedCredentials) {
-      if (matchingCredential.pres_referents) {
-        for (const attributeName of matchingCredential.pres_referents) {
+      if (matchingCredential.presentation_referents) {
+        for (const attributeName of matchingCredential.presentation_referents) {
           const possibleOption = {
             possibleValue: matchingCredential?.cred_info?.attrs
               ? matchingCredential.cred_info.attrs[attributeName]

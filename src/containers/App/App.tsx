@@ -69,6 +69,7 @@ export const App: React.FC = () => {
     const cloudAgentConfiguration = new Configuration({
       apiKey: environmentInfo.acapyAdminKey,
       basePath: environmentInfo.acapyAdminUri,
+      headers: { 'x-api-key': environmentInfo.acapyAdminKey },
     });
 
     const cloudAgentAPIs: CloudAgentAPI = {

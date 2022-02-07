@@ -66,7 +66,9 @@ export const IssuedCredentialsCard: React.FC = () => {
         role: IssueCredentialRecordsGetRoleEnum.Issuer,
         states: [
           IssueCredentialRecordsGetStateEnum.CredentialIssued,
+          IssueCredentialRecordsGetStateEnum.CredentialReceived,
           IssueCredentialRecordsGetStateEnum.CredentialAcked,
+          IssueCredentialRecordsGetStateEnum.CredentialRevoked,
         ],
       },
     );
